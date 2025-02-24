@@ -49,3 +49,6 @@ pull_translations:
 
 	$(intl_imports) frontend-platform paragon frontend-plugin-notifications
 
+validate-no-uncommitted-package-lock-changes:
+	# Checking for package-lock.json changes...
+	git diff --exit-code package-lock.json
