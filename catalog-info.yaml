@@ -1,0 +1,16 @@
+# This file records information about this repo. Its use is described in OEP-55:
+# https://open-edx-proposals.readthedocs.io/en/latest/processes/oep-0055-proc-project-maintainers.html
+
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: "frontend-plugin-notifications"
+  description: "Repository for Notification plugin."
+  links:
+    - url: "https://github.com/edx/frontend-plugin-notifications/blob/master/README.rst"
+      title: "README"
+      icon: "Article"
+spec:
+  owner: group:edx-infinity
+  type: "plugin"
+  lifecycle: "experimental"
