@@ -1,0 +1,7 @@
+coverage/*
+dist/
+node_modules/
+jest.config.js
+example
+src/i18n/messages/
+src/lightning.js
