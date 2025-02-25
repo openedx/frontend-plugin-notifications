@@ -1,7 +1,6 @@
 #check package-lock file version
 
 name: Lockfile Version check
-
 on:
   push:
     branches:
