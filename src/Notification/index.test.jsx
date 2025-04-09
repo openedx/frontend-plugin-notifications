@@ -154,7 +154,7 @@ describe('Notification test cases.', () => {
     await renderComponent();
 
     await waitFor(async () => {
-      const bellIcon = screen.queryByTestId('notification-bell-icon');
+      const bellIcon = await screen.findByTestId('notification-bell-icon');
 
       await act(async () => { fireEvent.click(bellIcon); });
       expect(screen.queryByTestId('notification-tray')).toBeInTheDocument();
