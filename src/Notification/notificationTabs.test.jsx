@@ -69,7 +69,7 @@ describe('Notification Tabs test cases.', () => {
     await renderComponent();
 
     await waitFor(async () => {
-      const bellIcon = screen.queryByTestId('notification-bell-icon');
+      const bellIcon = await screen.findByTestId('notification-bell-icon');
       await act(async () => { fireEvent.click(bellIcon); });
 
       const tabs = screen.queryAllByRole('tab');
@@ -83,7 +83,7 @@ describe('Notification Tabs test cases.', () => {
   it('Successfully showed unseen counts for unselected tabs.', async () => {
     await renderComponent();
     await waitFor(async () => {
-      const bellIcon = screen.queryByTestId('notification-bell-icon');
+      const bellIcon = await screen.findByTestId('notification-bell-icon');
       await act(async () => { fireEvent.click(bellIcon); });
 
       const tabs = screen.getAllByRole('tab');
@@ -96,7 +96,7 @@ describe('Notification Tabs test cases.', () => {
     await renderComponent();
 
     await waitFor(async () => {
-      const bellIcon = screen.queryByTestId('notification-bell-icon');
+      const bellIcon = await screen.findByTestId('notification-bell-icon');
       await act(async () => { fireEvent.click(bellIcon); });
       const notificationTab = screen.getAllByRole('tab');
       let selectedTab = screen.queryByTestId('notification-tab-reminders');

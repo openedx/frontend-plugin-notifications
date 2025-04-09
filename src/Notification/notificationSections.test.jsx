@@ -77,7 +77,7 @@ describe('Notification sections test cases.', () => {
     await renderComponent();
 
     await waitFor(async () => {
-      const bellIcon = screen.queryByTestId('notification-bell-icon');
+      const bellIcon = await screen.findByTestId('notification-bell-icon');
       await act(async () => { fireEvent.click(bellIcon); });
       const notificationTraySection = screen.queryByTestId('notification-tray-section');
 
@@ -92,7 +92,7 @@ describe('Notification sections test cases.', () => {
     await renderComponent();
 
     await waitFor(async () => {
-      const bellIcon = screen.queryByTestId('notification-bell-icon');
+      const bellIcon = await screen.findByTestId('notification-bell-icon');
       await act(async () => { fireEvent.click(bellIcon); });
       const markAllReadButton = screen.queryByTestId('mark-all-read');
 
@@ -110,7 +110,7 @@ describe('Notification sections test cases.', () => {
     await renderComponent();
 
     await waitFor(async () => {
-      const bellIcon = screen.queryByTestId('notification-bell-icon');
+      const bellIcon = await screen.findByTestId('notification-bell-icon');
       await act(async () => { fireEvent.click(bellIcon); });
 
       const loadMoreButton = screen.queryByTestId('load-more-notifications');
@@ -139,7 +139,7 @@ describe('Notification sections test cases.', () => {
     await renderComponent();
 
     await waitFor(async () => {
-      const bellIcon = screen.queryByTestId('notification-bell-icon');
+      const bellIcon = await screen.findByTestId('notification-bell-icon');
       await act(async () => { fireEvent.click(bellIcon); });
     });
 
