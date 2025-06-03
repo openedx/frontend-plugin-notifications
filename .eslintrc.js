@@ -2,7 +2,7 @@ const { createConfig } = require('@openedx/frontend-build');
 
 const config = createConfig('eslint');
 
-// Add test-utils.js to the list of files that can import devDependencies
+// Add to list of files that can import devDependencies
 const rule = config.rules['import/no-extraneous-dependencies'];
 if (Array.isArray(rule) && rule[1]?.devDependencies) {
   const additionalDevDependencies = [
