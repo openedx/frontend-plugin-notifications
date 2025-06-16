@@ -1,4 +1,5 @@
 import MockAdapter from 'axios-mock-adapter';
+// eslint-disable-next-line import/no-extraneous-dependencies
 import { Factory } from 'rosie';
 
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
