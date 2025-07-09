@@ -30,6 +30,8 @@ export const splitNotificationsByTime = (notificationList) => {
       },
       { today: [], earlier: [] },
     );
+    splittedData.today.sort((a, b) => new Date(b.created) - new Date(a.created));
+    splittedData.earlier.sort((a, b) => new Date(b.created) - new Date(a.created));
   }
   const { today, earlier } = splittedData;
   return { today, earlier };
