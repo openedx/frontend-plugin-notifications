@@ -49,7 +49,7 @@
   .notification-badge {
     position: absolute;
     border: 2px solid var(--pgn-color-white);
-    font-size: var(--pgn-typography-font-size-h6-base) !important;
+    font-size: 10px !important;
     font-weight: var(--pgn-typography-font-weight-semi-bold) !important;
     font-variant-numeric: lining-nums tabular-nums;
     background: var(--text-on-light-brand-500, var(--pgn-color-brand-500)) !important;

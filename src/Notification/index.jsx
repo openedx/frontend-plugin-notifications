@@ -178,7 +178,7 @@ const Notifications = ({ notificationAppData, showLeftMargin }) => {
           </Popover>
         )}
       >
-        <div ref={buttonRef} id="notificationIcon">
+        <div ref={buttonRef} id="notificationIcon" className="mr-4">
           <IconButton
             isActive={enableNotificationTray}
             alt={intl.formatMessage(messages.notificationBellIconAltMessage)}
