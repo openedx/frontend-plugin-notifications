@@ -77,6 +77,11 @@
 #notificationTray {
   filter: none;
   box-shadow: var(--pgn-elevation-box-shadow-down-2);
+  font-size: 12.25px !important;
+
+  .load-more-btn {
+    font-size: 14px !important;
+  }
 
   .popover-header {
     top: 0px;
@@ -116,6 +121,7 @@
     padding: 2px 5px;
     border-radius: 10rem;
     font-size: 9px;
+    background-color: var(--text-on-light-brand-500,var(--pgn-color-brand-500))!important;
   }
 
   .dropdown-toggle {

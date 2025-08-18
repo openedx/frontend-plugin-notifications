@@ -101,7 +101,7 @@ const NotificationSections = () => {
       ) : (hasMorePages && notificationListStatus === RequestStatus.SUCCESSFUL && notificationList.length >= 10 && (
         <Button
           variant="primary"
-          className="w-100 bg-primary-500"
+          className="w-100 bg-primary-500 load-more-btn"
           onClick={loadMoreNotifications}
           data-testid="load-more-notifications"
         >
