@@ -20,7 +20,7 @@ frontend-plugin-notifications
 Purpose
 =======
 
-This is the repository for storing Notification frontend plugin. Intended to be used with
+This is the repository for storing Notification Tray frontend plugin. Intended to be used with
 the `frontend-plugin-framework`_.
 
 .. _frontend-plugin-framework: https://github.com/openedx/frontend-plugin-framework
@@ -31,53 +31,46 @@ Getting Started
 Devstack Installation
 ---------------------
 
-These plugins are intended to be used with Header component. Make sure to follow the instructions on the MFE's
+This plugin is intended to be used with Header component. Make sure to follow the instructions on the MFE's
 repository README for getting set up in a devstack.
+
+Header in MFE should contain a plugin slot component to render the notifications tray.
 
 Local Development
 -----------------
 
 Clone this repository into your main workspace folder.
 
-Insert the following into the ``env.config.js`` file of MFE. If you haven't created one, create one
-in the root that includes the following::
+Insert the following into the ``env.config.js`` file of MFE. If it doesn't exist, create one
+in the root and add the following configuration::
 
-
+```
 // Imports from frontend-plugin-framework
 import { DIRECT_PLUGIN, PLUGIN_OPERATIONS } from '@openedx/frontend-plugin-framework';
 
 // Import  plugin components from the npm package
-import { Notifications, useAppNotifications } from '@edx/frontend-plugin-notifications';
-
-// Component to render notifications
-const NotificationsComponent = () => {
-  const { notificationAppData } = useAppNotifications();
-  return notificationAppData?.showNotificationsTray
-    ? <Notifications notificationAppData={notificationAppData} />
-    : '';
-};
+import NotificationsTray from '@edx/frontend-plugin-notifications';
 
 const config = {
   pluginSlots: {
-
-    // Add configuration for each `notifications_slot`. This is the ID for the <PluginSlot> component
-    notifications_slot: {
+    // Add configuration for each notifications_slot. This is the ID for the <PluginSlot> component
+    notifications_tray: {
       plugins: [
         {
           op: PLUGIN_OPERATIONS.Insert,
           widget: {
             id: 'notifications_tray',
             type: DIRECT_PLUGIN,
-            RenderWidget: NotificationsComponent,
+            RenderWidget: NotificationsTray,
           },
         },
       ],
     },
   },
 };
-
 export default config;
 
+```
 
 To develop while using this plugin library, modify the ``module.config.js`` file in the root of the MFE you are
 developing in to reference the local version of the plugin.::
