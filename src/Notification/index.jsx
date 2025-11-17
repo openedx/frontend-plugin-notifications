@@ -23,7 +23,7 @@ import { notificationsContext } from './context/notificationsContext';
 
 import './notification.scss';
 
-const Notifications = ({ notificationAppData, showLeftMargin }) => {
+const Notifications = ({ notificationAppData, margins }) => {
   const intl = useIntl();
   const popoverRef = useRef(null);
   const headerRef = useRef(null);
@@ -178,7 +178,7 @@ const Notifications = ({ notificationAppData, showLeftMargin }) => {
           </Popover>
         )}
       >
-        <div ref={buttonRef} id="notificationIcon" className="mr-4">
+        <div ref={buttonRef} id="notificationIcon">
           <IconButton
             isActive={enableNotificationTray}
             alt={intl.formatMessage(messages.notificationBellIconAltMessage)}
@@ -188,9 +188,7 @@ const Notifications = ({ notificationAppData, showLeftMargin }) => {
             variant="light"
             iconClassNames="text-primary-500"
             size="inline"
-            className={classNames('mr-1 notification-button', {
-              'ml-4': showLeftMargin,
-            })}
+            className={`notification-button ${margins}`}
             data-testid="notification-bell-icon"
           />
           {tabsCount?.count > 0 && (
@@ -215,7 +213,7 @@ const Notifications = ({ notificationAppData, showLeftMargin }) => {
 };
 
 Notifications.propTypes = {
-  showLeftMargin: PropTypes.bool,
+  margins: PropTypes.string,
   notificationAppData: PropTypes.shape({
     apps: PropTypes.objectOf(
       PropTypes.arrayOf(PropTypes.string),
@@ -232,7 +230,7 @@ Notifications.propTypes = {
 };
 
 Notifications.defaultProps = {
-  showLeftMargin: true,
+  margins: 'mx-4',
   notificationAppData: {
     apps: {},
     tabsCount: { count: 0 },
