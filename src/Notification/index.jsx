@@ -178,7 +178,7 @@ const Notifications = ({ notificationAppData, margins }) => {
           </Popover>
         )}
       >
-        <div ref={buttonRef} id="notificationIcon">
+        <div ref={buttonRef} id="notificationIcon" className={`${margins}`}>
           <IconButton
             isActive={enableNotificationTray}
             alt={intl.formatMessage(messages.notificationBellIconAltMessage)}
@@ -188,7 +188,7 @@ const Notifications = ({ notificationAppData, margins }) => {
             variant="light"
             iconClassNames="text-primary-500"
             size="inline"
-            className={`notification-button ${margins}`}
+            className="notification-button"
             data-testid="notification-bell-icon"
           />
           {tabsCount?.count > 0 && (
