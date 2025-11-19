@@ -2,10 +2,10 @@ import React, { StrictMode } from 'react';
 import Notifications from './Notification';
 import { useAppNotifications, useNotification } from './Notification/data/hook';
 
-export const NotificationsTray = () => {
+export const NotificationsTray = (props) => {
   const { notificationAppData } = useAppNotifications();
   return notificationAppData?.showNotificationsTray
-    ? <StrictMode><Notifications notificationAppData={notificationAppData} /></StrictMode>
+    ? <StrictMode><Notifications notificationAppData={notificationAppData} {...props} /></StrictMode>
     : '';
 };
 
