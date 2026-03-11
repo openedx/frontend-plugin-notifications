@@ -14,7 +14,7 @@ import { useNotification } from './data/hook';
 import { notificationsContext } from './context/notificationsContext';
 
 const NotificationRowItem = ({
-  id, type, contentUrl, content, courseName, createdAt, lastRead,
+  id, type = '', contentUrl, content, courseName, createdAt, lastRead = '',
 }) => {
   timeago.register('time-locale', timeLocale);
   const intl = useIntl();
@@ -85,12 +85,12 @@ const NotificationRowItem = ({
 
 NotificationRowItem.propTypes = {
   id: PropTypes.number.isRequired,
-  type: PropTypes.string.isRequired,
+  type: PropTypes.string,
   contentUrl: PropTypes.string.isRequired,
   content: PropTypes.node.isRequired,
   courseName: PropTypes.string.isRequired,
   createdAt: PropTypes.string.isRequired,
-  lastRead: PropTypes.string.isRequired,
+  lastRead: PropTypes.string,
 };
 
 export default React.memo(NotificationRowItem);

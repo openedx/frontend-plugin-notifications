@@ -10,7 +10,8 @@ Factory.define('notificationsCount')
     authoring: 5,
   })
   .attr('showNotificationsTray', true)
-  .attr('isNewNotificationViewEnabled', true);
+  .attr('isNewNotificationViewEnabled', true)
+  .attr('notification_expiry_days', 60);
 
 Factory.define('notification')
   .sequence('id')
