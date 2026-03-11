@@ -5,7 +5,7 @@
   "main": "dist/index.js",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/edx/frontend-plugin-notifications.git"
+    "url": "git+https://github.com/openedx/frontend-plugin-notifications.git"
   },
   "browserslist": [
     "extends @edx/browserslist-config"
@@ -25,12 +25,12 @@
   },
   "author": "edX",
   "license": "AGPL-3.0",
-  "homepage": "https://github.com/edx/frontend-plugin-notifications#readme",
+  "homepage": "https://github.com/openedx/frontend-plugin-notifications#readme",
   "publishConfig": {
     "access": "public"
   },
   "bugs": {
-    "url": "https://github.com/edx/frontend-plugin-notifications/issues"
+    "url": "https://github.com/openedx/frontend-plugin-notifications/issues"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^6.6.0",
