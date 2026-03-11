@@ -230,7 +230,7 @@ Notifications.propTypes = {
 };
 
 Notifications.defaultProps = {
-  margins: 'mx-4',
+  margins: 'mx-1.5',
   notificationAppData: {
     apps: {},
     tabsCount: { count: 0 },
