@@ -62,6 +62,7 @@ const Notifications = ({ notificationAppData, margins }) => {
     setNotificationData(prevData => ({
       ...prevData,
       ...notificationAppData,
+      notificationExpiryDays: notificationAppData.notificationExpiryDays ?? 0,
     }));
   }, [notificationAppData]);
 
@@ -220,7 +221,7 @@ Notifications.propTypes = {
     ).isRequired,
     appsId: PropTypes.arrayOf(PropTypes.string).isRequired,
     isNewNotificationViewEnabled: PropTypes.bool.isRequired,
-    notificationExpiryDays: PropTypes.number.isRequired,
+    notificationExpiryDays: PropTypes.number,
     notificationStatus: PropTypes.string.isRequired,
     showNotificationsTray: PropTypes.bool.isRequired,
     tabsCount: PropTypes.shape({

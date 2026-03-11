@@ -1,35 +1,51 @@
-name: Release
+name: Release CI
 on:
   push:
     branches:
       - main
 
 permissions:
-  id-token: write  # Required for OIDC
-  contents: write  # For Semantic Release tagging
-
+  contents: read # for checkout
 jobs:
   release:
     name: Release
     runs-on: ubuntu-latest
+    permissions:
+      contents: write # to be able to publish a GitHub release
+      issues: write # to be able to comment on released issues
+      pull-requests: write # to be able to comment on released pull requests
+      id-token: write # to enable use of OIDC for trusted publishing and npm provenance
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version-file: '.nvmrc'
-
-      - name: Install dependencies
-        run: npm ci
-      - name: Test
-        run: npm run test
-      - name: Build
-        run: npm run build
-      - name: Release
-        run: npx semantic-release@25
-        env:
-          GITHUB_TOKEN: ${{ secrets.OPENEDX_SEMANTIC_RELEASE_GITHUB_TOKEN }}
+    - name: Checkout
+      uses: actions/checkout@v5
+      with:
+        fetch-depth: 0
+    - name: Setup Nodejs Env
+      run: echo "NODE_VER=`cat .nvmrc`" >> $GITHUB_ENV
+    - name: Setup Node.js
+      uses: actions/setup-node@v5
+      with:
+        node-version: ${{ env.NODE_VER }}
+    - name: Install dependencies
+      run: npm ci
+    - name: Validate package-lock.json changes
+      run: make validate-no-uncommitted-package-lock-changes
+    - name: Lint
+      run: npm run lint
+    - name: Type check
+      run: npm run types
+    - name: Test
+      run: npm run test
+    - name: i18n_extract
+      run: npm run i18n_extract
+    - name: Coverage
+      uses: codecov/codecov-action@v4
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        fail_ci_if_error: false
+    - name: Build
+      run: npm run build
+    - name: Release
+      env:
+        GITHUB_TOKEN: ${{ secrets.SEMANTIC_RELEASE_GITHUB_TOKEN }}
+      run: npx semantic-release@25
