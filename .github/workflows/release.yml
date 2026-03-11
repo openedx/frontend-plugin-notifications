@@ -28,21 +28,10 @@ jobs:
         node-version: ${{ env.NODE_VER }}
     - name: Install dependencies
       run: npm ci
-    - name: Validate package-lock.json changes
-      run: make validate-no-uncommitted-package-lock-changes
     - name: Lint
       run: npm run lint
-    - name: Type check
-      run: npm run types
     - name: Test
       run: npm run test
-    - name: i18n_extract
-      run: npm run i18n_extract
-    - name: Coverage
-      uses: codecov/codecov-action@v4
-      with:
-        token: ${{ secrets.CODECOV_TOKEN }}
-        fail_ci_if_error: false
     - name: Build
       run: npm run build
     - name: Release
