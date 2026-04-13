@@ -1,7 +1,3 @@
-import { useEffect } from 'react';
-
-import { getConfig } from '@edx/frontend-platform';
-import { logError } from '@edx/frontend-platform/logging';
 import {
   QuestionAnswerOutline,
   PostOutline,
@@ -49,18 +45,3 @@ export const getIconByType = (type) => {
   };
   return iconMap[type] || { icon: PostOutline, class: 'text-primary-500' };
 };
-
-export function useFeedbackWrapper() {
-  useEffect(() => {
-    try {
-      const url = getConfig().NOTIFICATION_FEEDBACK_URL;
-      if (url) {
-        // eslint-disable-next-line no-undef
-        window.usabilla_live = lightningjs.require('usabilla_live', getConfig().NOTIFICATION_FEEDBACK_URL);
-        window.usabilla_live('hide');
-      }
-    } catch (error) {
-      logError('Error loading usabilla_live in notificationTray', error);
-    }
-  }, []);
-}

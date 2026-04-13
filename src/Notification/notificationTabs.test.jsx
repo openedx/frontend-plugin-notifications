@@ -1,7 +1,7 @@
 import React from 'react';
 
 import {
-  act, fireEvent, render, screen, waitFor, within,
+  fireEvent, render, screen, waitFor, within,
 } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { Factory } from 'rosie';
@@ -68,10 +68,10 @@ describe('Notification Tabs test cases.', () => {
   it('Successfully displayed with default discussion tab selected under notification tabs .', async () => {
     await renderComponent();
 
-    await waitFor(async () => {
-      const bellIcon = await screen.findByTestId('notification-bell-icon');
-      await act(async () => { fireEvent.click(bellIcon); });
+    const bellIcon = await screen.findByTestId('notification-bell-icon');
+    fireEvent.click(bellIcon);
 
+    await waitFor(() => {
       const tabs = screen.queryAllByRole('tab');
       const selectedTab = tabs.find(tab => tab.getAttribute('aria-selected') === 'true');
 
@@ -82,10 +82,11 @@ describe('Notification Tabs test cases.', () => {
 
   it('Successfully showed unseen counts for unselected tabs.', async () => {
     await renderComponent();
-    await waitFor(async () => {
-      const bellIcon = await screen.findByTestId('notification-bell-icon');
-      await act(async () => { fireEvent.click(bellIcon); });
 
+    const bellIcon = await screen.findByTestId('notification-bell-icon');
+    fireEvent.click(bellIcon);
+
+    await waitFor(() => {
       const tabs = screen.getAllByRole('tab');
 
       expect(within(tabs[0]).queryByRole('status')).toBeInTheDocument();
@@ -95,17 +96,19 @@ describe('Notification Tabs test cases.', () => {
   it('Successfully selected reminder tab.', async () => {
     await renderComponent();
 
-    await waitFor(async () => {
-      const bellIcon = await screen.findByTestId('notification-bell-icon');
-      await act(async () => { fireEvent.click(bellIcon); });
-      const notificationTab = screen.getAllByRole('tab');
-      let selectedTab = screen.queryByTestId('notification-tab-reminders');
+    const bellIcon = await screen.findByTestId('notification-bell-icon');
+    fireEvent.click(bellIcon);
 
+    await waitFor(() => {
+      const selectedTab = screen.queryByTestId('notification-tab-reminders');
       expect(selectedTab).not.toHaveClass('active');
+    });
 
-      fireEvent.click(notificationTab[0], { dataset: { rbEventKey: 'reminders' } });
-      selectedTab = screen.queryByTestId('notification-tab-reminders');
+    const notificationTab = screen.getAllByRole('tab');
+    fireEvent.click(notificationTab[0], { dataset: { rbEventKey: 'reminders' } });
 
+    await waitFor(() => {
+      const selectedTab = screen.queryByTestId('notification-tab-reminders');
       expect(selectedTab).toHaveClass('active');
     });
   });

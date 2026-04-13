@@ -31,11 +31,6 @@ const messages = defineMessages({
     defaultMessage: 'Load more notifications',
     description: 'Load more button to load more notifications',
   },
-  feedback: {
-    id: 'notification.feedback',
-    defaultMessage: 'Feedback',
-    description: 'text for feedback widget',
-  },
   allRecentNotificationsMessage: {
     id: 'notification.recent.all.message',
     defaultMessage: 'That’s all of your recent notifications!',
