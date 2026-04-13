@@ -99,7 +99,7 @@ describe('Notification sections test cases.', () => {
       expect(screen.queryByTestId('unread-notification-1')).toBeInTheDocument();
     });
 
-    const markAllReadButton = screen.queryByTestId('mark-all-read');
+    const markAllReadButton = await screen.findByTestId('mark-all-read');
     fireEvent.click(markAllReadButton);
 
     await waitFor(() => {
