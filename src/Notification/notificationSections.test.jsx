@@ -1,7 +1,7 @@
 import React from 'react';
 
 import {
-  act, fireEvent, render, screen, waitFor, within,
+  fireEvent, render, screen, waitFor, within,
 } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import MockAdapter from 'axios-mock-adapter';
@@ -76,9 +76,10 @@ describe('Notification sections test cases.', () => {
     await mockNotificationsResponse();
     await renderComponent();
 
-    await waitFor(async () => {
-      const bellIcon = await screen.findByTestId('notification-bell-icon');
-      await act(async () => { fireEvent.click(bellIcon); });
+    const bellIcon = await screen.findByTestId('notification-bell-icon');
+    fireEvent.click(bellIcon);
+
+    await waitFor(() => {
       const notificationTraySection = screen.queryByTestId('notification-tray-section');
 
       expect(within(notificationTraySection).queryByText('Last 24 hours')).toBeInTheDocument();
@@ -91,16 +92,17 @@ describe('Notification sections test cases.', () => {
     await mockNotificationsResponse();
     await renderComponent();
 
-    await waitFor(async () => {
-      const bellIcon = await screen.findByTestId('notification-bell-icon');
-      await act(async () => { fireEvent.click(bellIcon); });
-      const markAllReadButton = screen.queryByTestId('mark-all-read');
+    const bellIcon = await screen.findByTestId('notification-bell-icon');
+    fireEvent.click(bellIcon);
 
+    await waitFor(() => {
       expect(screen.queryByTestId('unread-notification-1')).toBeInTheDocument();
-      await act(async () => { fireEvent.click(markAllReadButton); });
     });
 
-    await waitFor(async () => {
+    const markAllReadButton = await screen.findByTestId('mark-all-read');
+    fireEvent.click(markAllReadButton);
+
+    await waitFor(() => {
       expect(screen.queryByTestId('unread-notification-1')).not.toBeInTheDocument();
     });
   });
@@ -109,13 +111,11 @@ describe('Notification sections test cases.', () => {
     await mockNotificationsResponse(10, 2);
     await renderComponent();
 
-    await waitFor(async () => {
-      const bellIcon = await screen.findByTestId('notification-bell-icon');
-      await act(async () => { fireEvent.click(bellIcon); });
+    const bellIcon = await screen.findByTestId('notification-bell-icon');
+    fireEvent.click(bellIcon);
 
-      const loadMoreButton = screen.queryByTestId('load-more-notifications');
-      await act(async () => { fireEvent.click(loadMoreButton); });
-    });
+    const loadMoreButton = await screen.findByTestId('load-more-notifications');
+    fireEvent.click(loadMoreButton);
 
     await waitFor(() => {
       expect(screen.queryAllByTestId('notification-contents')).toHaveLength(12);
@@ -138,10 +138,8 @@ describe('Notification sections test cases.', () => {
 
     await renderComponent();
 
-    await waitFor(async () => {
-      const bellIcon = await screen.findByTestId('notification-bell-icon');
-      await act(async () => { fireEvent.click(bellIcon); });
-    });
+    const bellIcon = await screen.findByTestId('notification-bell-icon');
+    fireEvent.click(bellIcon);
 
     await waitFor(() => {
       expect(screen.queryByTestId('notifications-empty-list')).toBeInTheDocument();

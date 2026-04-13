@@ -9,7 +9,7 @@ import { useSearchParams } from 'react-router-dom';
 import { getConfig } from '@edx/frontend-platform';
 import { useIntl } from '@edx/frontend-platform/i18n';
 import {
-  Bubble, Button, Hyperlink, Icon, IconButton, OverlayTrigger, Popover,
+  Bubble, Hyperlink, Icon, IconButton, OverlayTrigger, Popover,
 } from '@openedx/paragon';
 import { NotificationsNone, Settings } from '@openedx/paragon/icons';
 import { RequestStatus } from './data/constants';
@@ -80,10 +80,6 @@ const Notifications = ({ notificationAppData, margins }) => {
       setAppName('discussion');
     };
   }, [handleClickOutsideNotificationTray]);
-
-  const enableFeedback = useCallback(() => {
-    window.usabilla_live('click');
-  }, []);
 
   const notificationRefs = useMemo(
     () => ({ popoverHeaderRef: headerRef, notificationRef: popoverRef }),
@@ -166,15 +162,6 @@ const Notifications = ({ notificationAppData, margins }) => {
                   <NotificationTabs />
                 </NotificationPopoverContext.Provider>
               </Popover.Content>
-              {getConfig().NOTIFICATION_FEEDBACK_URL && (
-              <Button
-                onClick={enableFeedback}
-                variant="warning"
-                className="notification-feedback-widget"
-              >
-                {intl.formatMessage(messages.feedback)}
-              </Button>
-              )}
             </div>
           </Popover>
         )}

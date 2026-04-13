@@ -6,6 +6,7 @@ import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 import {
   getNotificationsListApiUrl, getNotificationsCountApiUrl, markNotificationsSeenApiUrl, markNotificationAsReadApiUrl,
 } from './data/api';
+import { getDiscussionTourUrl } from './tours/data/api';
 
 import './data/__factories__';
 
@@ -13,6 +14,7 @@ const notificationCountsApiUrl = getNotificationsCountApiUrl();
 const notificationsApiUrl = getNotificationsListApiUrl();
 const markedAllNotificationsAsSeenApiUrl = markNotificationsSeenApiUrl('discussion');
 const markedAllNotificationsAsReadApiUrl = markNotificationAsReadApiUrl();
+const notificationsTourApiUrl = getDiscussionTourUrl();
 
 export default async function mockNotificationsResponse(todaycount = 8, earlierCount = 2) {
   const axiosMock = new MockAdapter(getAuthenticatedHttpClient());
@@ -20,6 +22,7 @@ export default async function mockNotificationsResponse(todaycount = 8, earlierC
     Factory.buildList('notification', earlierCount, null, { createdDate: '2023-06-01T00:46:11.979531Z' }),
   ));
   axiosMock.onGet(notificationCountsApiUrl).reply(200, (Factory.build('notificationsCount')));
+  axiosMock.onGet(notificationsTourApiUrl).reply(200, []);
   axiosMock.onPut(markedAllNotificationsAsSeenApiUrl).reply(200, { message: 'Notifications marked seen.' });
   axiosMock.onPatch(markedAllNotificationsAsReadApiUrl).reply(200, { message: 'Notifications marked read.' });
 
