@@ -170,8 +170,9 @@ describe('Notification test cases.', () => {
     async (url) => {
       const getNotificationCountsSpy = jest.spyOn(notificationApi, 'getNotificationCounts').mockReturnValue(() => true);
       renderComponent(url);
-
-      expect(getNotificationCountsSpy).toHaveBeenCalledTimes(1);
+      await waitFor(() => {
+        expect(getNotificationCountsSpy).toHaveBeenCalledTimes(1);
+      });
     },
   );
 });
