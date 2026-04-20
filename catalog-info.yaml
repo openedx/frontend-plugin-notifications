@@ -11,6 +11,6 @@ metadata:
       title: "README"
       icon: "Article"
 spec:
-  owner: group:edx-infinity
+  owner: group:axim-engineering
   type: "application"
   lifecycle: "experimental"
