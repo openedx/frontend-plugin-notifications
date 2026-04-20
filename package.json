@@ -33,7 +33,7 @@
     "build:packages": "make build-packages",
     "clean": "make clean",
     "clean:packages": "make clean-packages",
-    "dev": "PORT=2002 PUBLIC_PATH=/notifications openedx dev",
+    "dev": "PORT=1992 PUBLIC_PATH=/notifications openedx dev",
     "dev:site": "make dev-site",
     "dev:packages": "make dev-packages",
     "i18n_extract": "openedx formatjs extract",
