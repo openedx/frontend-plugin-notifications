@@ -11,7 +11,6 @@ import {
 import { Container } from '@openedx/paragon';
 
 import notificationsApp from './src/app';
-import { appId } from './src/constants';
 
 import './src/app.scss';
 
@@ -49,11 +48,11 @@ const siteConfig: SiteConfig = {
     footerApp,
     notificationsApp,
     devTestPageApp,
+  ],
+  externalRoutes: [
     {
-      appId,
-      config: {
-        ACCOUNT_SETTINGS_URL: 'http://apps.local.openedx.io:1997/account',
-      },
+      role: 'org.openedx.frontend.role.account',
+      url: 'http://apps.local.openedx.io:1997/account/',
     },
   ],
 

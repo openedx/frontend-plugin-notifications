@@ -3,9 +3,9 @@ import React, {
 } from 'react';
 
 import classNames from 'classnames';
-import { useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 
-import { useAppConfig, useIntl } from '@openedx/frontend-base';
+import { getUrlByRouteRole, useIntl } from '@openedx/frontend-base';
 import {
   Bubble, Hyperlink, Icon, IconButton, OverlayTrigger, Popover,
 } from '@openedx/paragon';
@@ -39,7 +39,6 @@ const Notifications: React.FC<NotificationsProps> = ({
   margins = 'mx-1.5',
 }) => {
   const intl = useIntl();
-  const appConfig = useAppConfig() as { ACCOUNT_SETTINGS_URL?: string };
   const popoverRef = useRef<HTMLDivElement>(null);
   const headerRef = useRef<HTMLDivElement>(null);
   const [searchParams] = useSearchParams();
@@ -102,12 +101,19 @@ const Notifications: React.FC<NotificationsProps> = ({
     handleActiveTab,
   }), [appName, handleActiveTab]);
 
-  const accountSettingsUrl = appConfig.ACCOUNT_SETTINGS_URL ?? '';
-  const settingsDestination = `${
-    accountSettingsUrl && accountSettingsUrl.endsWith('/')
-      ? `${accountSettingsUrl}#notifications`
-      : `${accountSettingsUrl}/#notifications`
-  }`;
+  const accountSettingsUrl = getUrlByRouteRole('org.openedx.frontend.role.account');
+  const settingsDestination = accountSettingsUrl
+    ? `${accountSettingsUrl.replace(/\/$/, '')}/#notifications`
+    : '';
+  const isInternalRoute = !!accountSettingsUrl && !/^[a-z][a-z0-9+.-]*:/i.test(accountSettingsUrl);
+  const settingsIcon = (
+    <Icon
+      src={Settings}
+      className="text-primary-500 icon-size-20"
+      data-testid="setting-icon"
+      screenReaderText="preferences settings icon"
+    />
+  );
 
   return (
     <notificationsContext.Provider value={notificationContextValue}>
@@ -136,18 +142,17 @@ const Notifications: React.FC<NotificationsProps> = ({
                   line-height-24 bg-white position-sticky`}
                 >
                   {intl.formatMessage(messages.notificationTitle)}
-                  <Hyperlink
-                    destination={settingsDestination}
-                    target="_blank"
-                    showLaunchIcon={false}
-                  >
-                    <Icon
-                      src={Settings}
-                      className="text-primary-500 icon-size-20"
-                      data-testid="setting-icon"
-                      screenReaderText="preferences settings icon"
-                    />
-                  </Hyperlink>
+                  {isInternalRoute ? (
+                    <Link to={settingsDestination}>{settingsIcon}</Link>
+                  ) : (
+                    <Hyperlink
+                      destination={settingsDestination}
+                      target="_blank"
+                      showLaunchIcon={false}
+                    >
+                      {settingsIcon}
+                    </Hyperlink>
+                  )}
                 </Popover.Title>
               </div>
               <Popover.Content className="notification-content p-0">

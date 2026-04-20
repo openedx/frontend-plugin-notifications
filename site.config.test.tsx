@@ -1,7 +1,6 @@
 import type { SiteConfig } from '@openedx/frontend-base';
 
 import notificationsApp from './src/app';
-import { appId } from './src/constants';
 
 const siteConfig: SiteConfig = {
   siteId: 'notifications-test',
@@ -14,13 +13,11 @@ const siteConfig: SiteConfig = {
   // Use 'test' instead of EnvironmentTypes.TEST to break a circular dependency
   // when mocking `@openedx/frontend-base` itself.
   environment: 'test' as SiteConfig['environment'],
-  apps: [
-    notificationsApp,
+  apps: [notificationsApp],
+  externalRoutes: [
     {
-      appId,
-      config: {
-        ACCOUNT_SETTINGS_URL: 'http://localhost/account',
-      },
+      role: 'org.openedx.frontend.role.account',
+      url: 'http://localhost/account/',
     },
   ],
 };
