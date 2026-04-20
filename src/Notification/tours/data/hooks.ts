@@ -41,18 +41,23 @@ export function useTourConfiguration() {
   const { mutate: updateTour } = useUpdateTourShowStatus();
 
   return useMemo(
-    () => (
-      tours?.map((tour) => Object.keys(tourCheckpoints(intl)).includes(tour.tourName) && (
-        {
+    () => {
+      const checkpointsByKey = tourCheckpoints(intl);
+      return tours?.map((tour) => {
+        const key = camelToConstant(tour.tourName);
+        if (!(key in checkpointsByKey)) {
+          return false;
+        }
+        return {
           tourId: tour.tourName,
           dismissButtonText: intl.formatMessage(messages.dismissButtonText),
           endButtonText: intl.formatMessage(messages.endButtonText),
           enabled: Boolean(tour.enabled && tour.showTour),
           onEnd: () => updateTour(tour.id),
-          checkpoints: tourCheckpoints(intl)[camelToConstant(tour.tourName)],
-        }
-      )) ?? []
-    ),
+          checkpoints: checkpointsByKey[key],
+        };
+      }) ?? [];
+    },
     [intl, tours, updateTour],
   );
 }

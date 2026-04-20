@@ -29,6 +29,7 @@ const devApp: App = {
       <Container fluid size="xl" className="py-4">
         <h1>Notifications dev site</h1>
         <p>Sign in to see the notifications bell in the header.</p>
+        <p><span id="example-tour-target">Tour target element.</span></p>
       </Container>
     ),
   }],
