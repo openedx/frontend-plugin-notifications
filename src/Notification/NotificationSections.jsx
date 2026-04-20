@@ -3,7 +3,7 @@ import React, { useCallback, useContext, useMemo } from 'react';
 import classNames from 'classnames';
 import isEmpty from 'lodash/isEmpty';
 
-import { useIntl } from '@edx/frontend-platform/i18n';
+import { useIntl } from '@openedx/frontend-base';
 import { Button, Icon, Spinner } from '@openedx/paragon';
 import { AutoAwesome, CheckCircleLightOutline } from '@openedx/paragon/icons';
 

@@ -8,10 +8,12 @@ import { MemoryRouter } from 'react-router-dom';
 import MockAdapter from 'axios-mock-adapter';
 import { Factory } from 'rosie';
 
-import { initializeMockApp } from '@edx/frontend-platform';
-import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
-import { IntlProvider } from '@edx/frontend-platform/i18n';
-import { AppContext } from '@edx/frontend-platform/react';
+import {
+  AppContext,
+  IntlProvider,
+  getAuthenticatedHttpClient,
+  initializeMockApp,
+} from '@openedx/frontend-base';
 
 import Notifications from './index';
 import * as notificationApi from './data/api';

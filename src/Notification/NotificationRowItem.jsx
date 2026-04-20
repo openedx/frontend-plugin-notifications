@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import * as timeago from 'timeago.js';
 import DOMPurify from 'dompurify';
 
-import { useIntl } from '@edx/frontend-platform/i18n';
+import { useIntl } from '@openedx/frontend-base';
 import { Icon, Hyperlink } from '@openedx/paragon';
 
 import messages from './messages';

@@ -3,8 +3,7 @@ import {
 } from 'react';
 import { useLocation } from 'react-router-dom';
 
-import { camelCaseObject } from '@edx/frontend-platform';
-import { AppContext } from '@edx/frontend-platform/react';
+import { AppContext, camelCaseObject } from '@openedx/frontend-base';
 
 import { breakpoints, useWindowSize } from '@openedx/paragon';
 import { RequestStatus } from './constants';

@@ -7,9 +7,11 @@ import {
 import { MemoryRouter } from 'react-router-dom';
 import { Factory } from 'rosie';
 
-import { initializeMockApp } from '@edx/frontend-platform';
-import { IntlProvider } from '@edx/frontend-platform/i18n';
-import { AppContext } from '@edx/frontend-platform/react';
+import {
+  AppContext,
+  IntlProvider,
+  initializeMockApp,
+} from '@openedx/frontend-base';
 
 import Notifications from './index';
 import mockNotificationsResponse from './test-utils';

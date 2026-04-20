@@ -1,10 +1,9 @@
-import { getConfig, snakeCaseObject } from '@edx/frontend-platform';
-import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
+import { getAuthenticatedHttpClient, getSiteConfig, snakeCaseObject } from '@openedx/frontend-base';
 
-export const getNotificationsCountApiUrl = () => `${getConfig().LMS_BASE_URL}/api/notifications/count/`;
-export const getNotificationsListApiUrl = () => `${getConfig().LMS_BASE_URL}/api/notifications/`;
-export const markNotificationsSeenApiUrl = (appName) => `${getConfig().LMS_BASE_URL}/api/notifications/mark-seen/${appName}/`;
-export const markNotificationAsReadApiUrl = () => `${getConfig().LMS_BASE_URL}/api/notifications/read/`;
+export const getNotificationsCountApiUrl = () => `${getSiteConfig().lmsBaseUrl}/api/notifications/count/`;
+export const getNotificationsListApiUrl = () => `${getSiteConfig().lmsBaseUrl}/api/notifications/`;
+export const markNotificationsSeenApiUrl = (appName) => `${getSiteConfig().lmsBaseUrl}/api/notifications/mark-seen/${appName}/`;
+export const markNotificationAsReadApiUrl = () => `${getSiteConfig().lmsBaseUrl}/api/notifications/read/`;
 
 export async function getNotificationsList(appName, page, pageSize, trayOpened) {
   const params = snakeCaseObject({

@@ -2,18 +2,18 @@ import '@testing-library/jest-dom';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { render as rtlRender } from '@testing-library/react';
-import { getConfig, mergeConfig } from '@edx/frontend-platform';
-import { configure as configureI18n, IntlProvider } from '@edx/frontend-platform/i18n';
-import { configure as configureLogging } from '@edx/frontend-platform/logging';
+import {
+  getSiteConfig,
+  configureI18n,
+  configureLogging,
+  IntlProvider,
+} from '@openedx/frontend-base';
 import ResizeObserver from 'resize-observer-polyfill';
 
 global.ResizeObserver = ResizeObserver;
 
-mergeConfig({
-  ...process.env,
-});
-
-jest.mock('@src/generic/messages', () => jest.fn(() => { }), { virtual: true });
+// TODO (Phase 6): replace with `import siteConfig from 'site.config'; mergeSiteConfig(siteConfig);`
+// once `site.config.test.tsx` is introduced in Phase 5.
 
 const supressWarningBlock = (callback) => {
   const originalConsoleWarning = console.warn;
@@ -30,14 +30,14 @@ class MockLoggingService {
 
 export const initializeIntl = () => {
   const loggingService = configureLogging(MockLoggingService, {
-    config: getConfig(),
+    config: getSiteConfig(),
   });
 
   // i18n doesn't have a service class to return.
-  // ignore missing/unexpect locale warnings from @edx/frontend-platform/i18n
+  // ignore missing/unexpected locale warnings from the i18n layer
   // it is unnecessary and not relevant to the tests
   supressWarningBlock(() => configureI18n({
-    config: getConfig(),
+    config: getSiteConfig(),
     loggingService,
     messages: [],
   }));

@@ -1,6 +1,5 @@
 import { useMemo, useContext, useCallback } from 'react';
-import { camelCaseObject } from '@edx/frontend-platform';
-import { useIntl } from '@edx/frontend-platform/i18n';
+import { camelCaseObject, useIntl } from '@openedx/frontend-base';
 import messages from '../messages';
 import tourCheckpoints from '../constants';
 import { getNotificationsTours, updateNotificationsTour } from './api';

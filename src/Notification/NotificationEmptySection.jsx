@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 
-import { useIntl } from '@edx/frontend-platform/i18n';
+import { useIntl } from '@openedx/frontend-base';
 import { Icon, IconButton } from '@openedx/paragon';
 import { NotificationsNone } from '@openedx/paragon/icons';
 

@@ -6,8 +6,7 @@ import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import { useSearchParams } from 'react-router-dom';
 
-import { getConfig } from '@edx/frontend-platform';
-import { useIntl } from '@edx/frontend-platform/i18n';
+import { getSiteConfig, useIntl } from '@openedx/frontend-base';
 import {
   Bubble, Hyperlink, Icon, IconButton, OverlayTrigger, Popover,
 } from '@openedx/paragon';
@@ -141,9 +140,12 @@ const Notifications = ({ notificationAppData, margins }) => {
                   {intl.formatMessage(messages.notificationTitle)}
                   <Hyperlink
                     destination={`${
-                      getConfig().ACCOUNT_SETTINGS_URL && getConfig().ACCOUNT_SETTINGS_URL.endsWith('/')
-                        ? `${getConfig().ACCOUNT_SETTINGS_URL}#notifications`
-                        : `${getConfig().ACCOUNT_SETTINGS_URL}/#notifications`
+                      // TODO (Phase 5/9): expose accountSettingsUrl via this app's
+                      // site.config / app.config.  Legacy code read ACCOUNT_SETTINGS_URL
+                      // from env-driven config; frontend-base has no built-in slot for it.
+                      getSiteConfig().accountSettingsUrl && getSiteConfig().accountSettingsUrl.endsWith('/')
+                        ? `${getSiteConfig().accountSettingsUrl}#notifications`
+                        : `${getSiteConfig().accountSettingsUrl}/#notifications`
                     }`}
                     target="_blank"
                     showLaunchIcon={false}
