@@ -15,9 +15,11 @@ import {
   getSiteConfig,
   initializeMockApp,
 } from '@openedx/frontend-base';
+import { QueryClientProvider } from '@tanstack/react-query';
 
 import Notifications from './index';
 import * as notificationApi from './data/api';
+import { createTestQueryClient } from '../setupTest';
 
 import './data/__factories__';
 import { useAppNotifications } from './data/hook';
@@ -45,14 +47,17 @@ const NotificationComponent = () => {
 };
 
 async function renderComponent(url = '/') {
+  const queryClient = createTestQueryClient();
   render(
-    <MemoryRouter initialEntries={[url]}>
-      <SiteContext.Provider value={{ authenticatedUser, siteConfig: getSiteConfig(), locale: 'en' }}>
-        <IntlProvider locale="en" messages={{}}>
-          <NotificationComponent />
-        </IntlProvider>
-      </SiteContext.Provider>
-    </MemoryRouter>,
+    <QueryClientProvider client={queryClient}>
+      <MemoryRouter initialEntries={[url]}>
+        <SiteContext.Provider value={{ authenticatedUser, siteConfig: getSiteConfig(), locale: 'en' }}>
+          <IntlProvider locale="en" messages={{}}>
+            <NotificationComponent />
+          </IntlProvider>
+        </SiteContext.Provider>
+      </MemoryRouter>
+    </QueryClientProvider>,
   );
 }
 

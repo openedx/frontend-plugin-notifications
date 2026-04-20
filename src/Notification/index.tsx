@@ -10,20 +10,13 @@ import {
   Bubble, Hyperlink, Icon, IconButton, OverlayTrigger, Popover,
 } from '@openedx/paragon';
 import { NotificationsNone, Settings } from '@openedx/paragon/icons';
-import { RequestStatus } from './data/constants';
 
-import { useIsOnLargeScreen, useIsOnMediumScreen } from './data/hook';
-import { NotificationAppData } from './data/hook';
+import { useIsOnLargeScreen, useIsOnMediumScreen, NotificationAppData } from './data/hook';
 import NotificationTour from './tours/NotificationTour';
 import NotificationPopoverContext from './context/notificationPopoverContext';
 import messages from './messages';
 import NotificationTabs from './NotificationTabs';
-import {
-  notificationsContext,
-  NotificationContextValue,
-  initialState,
-  TabsCount,
-} from './context/notificationsContext';
+import { notificationsContext, NotificationContextValue } from './context/notificationsContext';
 
 import './notification.scss';
 
@@ -38,7 +31,6 @@ const defaultNotificationAppData: NotificationAppData = {
   appsId: [],
   isNewNotificationViewEnabled: false,
   notificationExpiryDays: 0,
-  notificationStatus: '',
   showNotificationsTray: false,
 };
 
@@ -55,11 +47,11 @@ const Notifications: React.FC<NotificationsProps> = ({
   const [enableNotificationTray, setEnableNotificationTray] = useState(false);
   const [appName, setAppName] = useState('discussion');
   const [isHeaderVisible, setIsHeaderVisible] = useState(true);
-  const [notificationData, setNotificationData] = useState<Partial<NotificationContextValue>>({});
-  const [tabsCount, setTabsCount] = useState<TabsCount>(notificationAppData?.tabsCount ?? { count: 0 });
   const [openFlag, setOpenFlag] = useState(false);
   const isOnMediumScreen = useIsOnMediumScreen();
   const isOnLargeScreen = useIsOnLargeScreen();
+
+  const { tabsCount } = notificationAppData;
 
   const toggleNotificationTray = useCallback(() => {
     setEnableNotificationTray(prevState => !prevState);
@@ -80,15 +72,6 @@ const Notifications: React.FC<NotificationsProps> = ({
     setEnableNotificationTray(searchParams.get('showNotifications') === 'true');
     setOpenFlag(true);
   }, [tabsCount, openFlag, searchParams]);
-
-  useEffect(() => {
-    setTabsCount(notificationAppData.tabsCount);
-    setNotificationData(prevData => ({
-      ...prevData,
-      ...notificationAppData,
-      notificationExpiryDays: notificationAppData.notificationExpiryDays ?? 0,
-    }));
-  }, [notificationAppData]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -112,31 +95,12 @@ const Notifications: React.FC<NotificationsProps> = ({
 
   const handleActiveTab = useCallback((selectedAppName: string) => {
     setAppName(selectedAppName);
-    setNotificationData(prevData => ({
-      ...prevData,
-      notificationListStatus: appName === selectedAppName ? RequestStatus.SUCCESSFUL : RequestStatus.IN_PROGRESS,
-    }));
-  }, [appName]);
-
-  const updateNotificationData = useCallback((data: Partial<NotificationContextValue>) => {
-    setNotificationData(prevData => ({
-      ...prevData,
-      ...data,
-    }));
-    if (data.tabsCount) {
-      setTabsCount(data.tabsCount);
-    }
   }, []);
 
   const notificationContextValue = useMemo<NotificationContextValue>(() => ({
-    ...initialState,
-    ...notificationData,
-    enableNotificationTray,
-    handleActiveTab,
-    updateNotificationData,
     appName,
-    tabsCount,
-  }), [enableNotificationTray, appName, handleActiveTab, updateNotificationData, notificationData, tabsCount]);
+    handleActiveTab,
+  }), [appName, handleActiveTab]);
 
   const accountSettingsUrl = appConfig.ACCOUNT_SETTINGS_URL ?? '';
   const settingsDestination = `${
@@ -188,7 +152,7 @@ const Notifications: React.FC<NotificationsProps> = ({
               </div>
               <Popover.Content className="notification-content p-0">
                 <NotificationPopoverContext.Provider value={notificationRefs}>
-                  <NotificationTabs />
+                  <NotificationTabs notificationAppData={notificationAppData} />
                 </NotificationPopoverContext.Provider>
               </Popover.Content>
             </div>

@@ -7,6 +7,7 @@ import {
   IntlProvider,
   mergeSiteConfig,
 } from '@openedx/frontend-base';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import ResizeObserver from 'resize-observer-polyfill';
 import siteConfig from 'site.config';
 
@@ -38,11 +39,21 @@ export const initializeIntl = () => {
   }));
 };
 
+export const createTestQueryClient = () => new QueryClient({
+  defaultOptions: {
+    queries: { retry: false, gcTime: 0, staleTime: 0 },
+    mutations: { retry: false },
+  },
+});
+
 function render(ui: React.ReactElement, renderOptions: Omit<RenderOptions, 'wrapper'> = {}) {
+  const queryClient = createTestQueryClient();
   const Wrapper = ({ children }: { children: ReactNode }) => (
-    <IntlProvider locale="en">
-      {children}
-    </IntlProvider>
+    <QueryClientProvider client={queryClient}>
+      <IntlProvider locale="en">
+        {children}
+      </IntlProvider>
+    </QueryClientProvider>
   );
 
   return rtlRender(ui, { wrapper: Wrapper, ...renderOptions });

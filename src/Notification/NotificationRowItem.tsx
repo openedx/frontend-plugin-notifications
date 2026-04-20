@@ -1,4 +1,4 @@
-import React, { useCallback, useContext } from 'react';
+import React, { useCallback } from 'react';
 
 import * as timeago from 'timeago.js';
 import DOMPurify from 'dompurify';
@@ -9,8 +9,7 @@ import { Icon, Hyperlink } from '@openedx/paragon';
 import messages from './messages';
 import timeLocale from '../common/time-locale';
 import { getIconByType } from './utils';
-import { useNotification } from './data/hook';
-import { notificationsContext } from './context/notificationsContext';
+import { useMarkNotificationRead } from './data/hook';
 
 interface NotificationRowItemProps {
   id: number,
@@ -27,16 +26,14 @@ const NotificationRowItem: React.FC<NotificationRowItemProps> = ({
 }) => {
   timeago.register('time-locale', timeLocale);
   const intl = useIntl();
-  const { markNotificationsAsRead } = useNotification();
-  const { updateNotificationData } = useContext(notificationsContext);
+  const { mutateAsync: markAsRead } = useMarkNotificationRead();
   const sanitizedContent = DOMPurify.sanitize(content);
 
   const handleMarkAsRead = useCallback(async () => {
     if (!lastRead) {
-      const data = await markNotificationsAsRead(id);
-      updateNotificationData(data);
+      await markAsRead(id);
     }
-  }, [id, lastRead, markNotificationsAsRead, updateNotificationData]);
+  }, [id, lastRead, markAsRead]);
 
   const handleNotificationClick = async (event: React.MouseEvent) => {
     event.preventDefault();

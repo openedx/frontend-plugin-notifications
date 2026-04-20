@@ -14,6 +14,7 @@ import {
   getSiteConfig,
   initializeMockApp,
 } from '@openedx/frontend-base';
+import { QueryClientProvider } from '@tanstack/react-query';
 
 import { getNotificationsListApiUrl, getNotificationsCountApiUrl } from './data/api';
 import Notifications from './index';
@@ -21,6 +22,7 @@ import mockNotificationsResponse from './test-utils';
 import './data/__factories__';
 import { useAppNotifications } from './data/hook';
 import { getDiscussionTourUrl } from './tours/data/api';
+import { createTestQueryClient } from '../setupTest';
 
 const notificationCountsApiUrl = getNotificationsCountApiUrl();
 const notificationsApiUrl = getNotificationsListApiUrl();
@@ -47,14 +49,17 @@ const NotificationComponent = () => {
 };
 
 async function renderComponent() {
+  const queryClient = createTestQueryClient();
   render(
-    <MemoryRouter>
-      <SiteContext.Provider value={{ authenticatedUser, siteConfig: getSiteConfig(), locale: 'en' }}>
-        <IntlProvider locale="en" messages={{}}>
-          <NotificationComponent />
-        </IntlProvider>
-      </SiteContext.Provider>
-    </MemoryRouter>,
+    <QueryClientProvider client={queryClient}>
+      <MemoryRouter>
+        <SiteContext.Provider value={{ authenticatedUser, siteConfig: getSiteConfig(), locale: 'en' }}>
+          <IntlProvider locale="en" messages={{}}>
+            <NotificationComponent />
+          </IntlProvider>
+        </SiteContext.Provider>
+      </MemoryRouter>
+    </QueryClientProvider>,
   );
 }
 

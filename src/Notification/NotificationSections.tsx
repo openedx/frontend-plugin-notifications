@@ -7,39 +7,37 @@ import { useIntl } from '@openedx/frontend-base';
 import { Button, Icon, Spinner } from '@openedx/paragon';
 import { AutoAwesome, CheckCircleLightOutline } from '@openedx/paragon/icons';
 
-import { RequestStatus } from './data/constants';
 import NotificationPopoverContext from './context/notificationPopoverContext';
 import messages from './messages';
 import NotificationEmptySection from './NotificationEmptySection';
 import NotificationRowItem from './NotificationRowItem';
 import { splitNotificationsByTime } from './utils';
 import { notificationsContext, NotificationItem } from './context/notificationsContext';
-import { useNotification } from './data/hook';
+import { NotificationAppData, useMarkAllNotificationsRead, useNotificationList } from './data/hook';
 
-const NotificationSections = () => {
+interface NotificationSectionsProps {
+  notificationAppData: NotificationAppData,
+}
+
+const NotificationSections: React.FC<NotificationSectionsProps> = ({ notificationAppData }) => {
   const intl = useIntl();
+  const { appName } = useContext(notificationsContext);
+  const { appsId, notificationExpiryDays } = notificationAppData;
+
   const {
-    appName, notificationListStatus, pagination,
-    notificationExpiryDays, appsId, updateNotificationData,
-  } = useContext(notificationsContext);
-  const { getNotifications, markAllNotificationsAsRead, fetchNotificationList } = useNotification();
-  const notificationList = getNotifications();
-  const { hasMorePages, currentPage } = pagination || {};
+    notifications: notificationList, hasMorePages, isPending, isFetching, loadMore,
+  } = useNotificationList(appName);
+  const { mutateAsync: markAllAsRead } = useMarkAllNotificationsRead();
+
   const { popoverHeaderRef, notificationRef } = useContext(NotificationPopoverContext);
   const { today = [], earlier = [] } = useMemo(
     () => splitNotificationsByTime(notificationList),
     [notificationList],
   );
 
-  const handleMarkAllAsRead = useCallback(async () => {
-    const data = await markAllNotificationsAsRead(appName);
-    updateNotificationData(data);
-  }, [appName, markAllNotificationsAsRead, updateNotificationData]);
-
-  const loadMoreNotifications = useCallback(async () => {
-    const data = await fetchNotificationList(appName, (currentPage ?? 0) + 1);
-    updateNotificationData(data);
-  }, [fetchNotificationList, appName, currentPage, updateNotificationData]);
+  const handleMarkAllAsRead = useCallback(() => {
+    markAllAsRead(appName);
+  }, [appName, markAllAsRead]);
 
   const renderNotificationSection = (section: 'today' | 'earlier', items: NotificationItem[]) => {
     if (isEmpty(items)) {
@@ -81,8 +79,9 @@ const NotificationSections = () => {
     );
   };
 
+  const isSuccess = !isPending && !isFetching;
   const shouldRenderEmptyNotifications = notificationList?.length === 0
-    && notificationListStatus === RequestStatus.SUCCESSFUL
+    && isSuccess
     && notificationRef?.current
     && popoverHeaderRef?.current;
 
@@ -96,15 +95,15 @@ const NotificationSections = () => {
     >
       {renderNotificationSection('today', today)}
       {renderNotificationSection('earlier', earlier)}
-      {notificationListStatus === RequestStatus.IN_PROGRESS ? (
+      {isFetching ? (
         <div className="d-flex justify-content-center p-4">
           <Spinner animation="border" variant="primary" data-testid="notifications-loading-spinner" />
         </div>
-      ) : (hasMorePages && notificationListStatus === RequestStatus.SUCCESSFUL && notificationList.length >= 10 && (
+      ) : (hasMorePages && isSuccess && notificationList.length >= 10 && (
         <Button
           variant="primary"
           className="w-100 bg-primary-500 load-more-btn"
-          onClick={loadMoreNotifications}
+          onClick={loadMore}
           data-testid="load-more-notifications"
         >
           {intl.formatMessage(messages.loadMoreNotifications)}
@@ -112,7 +111,7 @@ const NotificationSections = () => {
       )
       )}
       {
-        notificationList.length > 0 && !hasMorePages && notificationListStatus === RequestStatus.SUCCESSFUL && (
+        notificationList.length > 0 && !hasMorePages && isSuccess && (
           <div
             className="d-flex flex-column my-5"
             data-testid="notifications-list-complete"

@@ -1,39 +1,26 @@
-import React, {
-  useEffect, useContext, useCallback, useRef,
-} from 'react';
+import React, { useContext, useEffect } from 'react';
 
 import { Tab, Tabs } from '@openedx/paragon';
 
 import NotificationSections from './NotificationSections';
 import { notificationsContext } from './context/notificationsContext';
-import { useNotification } from './data/hook';
+import { NotificationAppData, useMarkNotificationSeen } from './data/hook';
 
-const NotificationTabs = () => {
-  const {
-    appName, handleActiveTab, tabsCount, appsId, updateNotificationData,
-  } = useContext(notificationsContext);
-  const fetchNotificationsRef = useRef<(() => Promise<void>) | null>(null);
-  const { fetchNotificationList, markNotificationsAsSeen } = useNotification();
+interface NotificationTabsProps {
+  notificationAppData: NotificationAppData,
+}
 
-  const fetchNotificationsList = useCallback(async () => {
-    const data = await fetchNotificationList(appName);
-    updateNotificationData(data);
+const NotificationTabs: React.FC<NotificationTabsProps> = ({ notificationAppData }) => {
+  const { appName, handleActiveTab } = useContext(notificationsContext);
+  const { appsId, tabsCount } = notificationAppData;
+  const { mutate: markSeen } = useMarkNotificationSeen();
+  const unseenForActiveApp = appName ? (tabsCount[appName] ?? 0) : 0;
 
-    if (tabsCount[appName]) {
-      await markNotificationsAsSeen(appName);
+  useEffect(() => {
+    if (appName && unseenForActiveApp > 0) {
+      markSeen(appName);
     }
-  }, [appName, fetchNotificationList, updateNotificationData, markNotificationsAsSeen, tabsCount]);
-
-  useEffect(() => {
-    fetchNotificationsRef.current = fetchNotificationsList;
-  }, [fetchNotificationsList]);
-
-  useEffect(() => {
-    const fetchNotifications = async () => {
-      await fetchNotificationsRef.current?.();
-    };
-    fetchNotifications();
-  }, [appName]);
+  }, [appName, unseenForActiveApp, markSeen]);
 
   return (
     appsId.length > 1
@@ -53,12 +40,12 @@ const NotificationTabs = () => {
                 tabClassName="pt-0 py-2 px-2.5 d-flex border-top-0 mb-0 align-items-center line-height-24 text-capitalize"
                 data-testid={`notification-tab-${app}`}
               >
-                {appName === app && <NotificationSections />}
+                {appName === app && <NotificationSections notificationAppData={notificationAppData} />}
               </Tab>
             ))}
           </Tabs>
         )
-      : <NotificationSections />
+      : <NotificationSections notificationAppData={notificationAppData} />
   );
 };
 
