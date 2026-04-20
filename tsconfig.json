@@ -10,6 +10,7 @@
   },
   "include": [
     "src/**/*",
+    "dev/**/*",
     "app.d.ts",
     "babel.config.js",
     "eslint.config.js",
