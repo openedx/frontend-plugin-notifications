@@ -2,10 +2,10 @@ const { createConfig } = require('@openedx/frontend-base/tools');
 
 module.exports = createConfig('test', {
   setupFilesAfterEnv: [
-    '<rootDir>/src/setupTest.js',
+    '<rootDir>/src/setupTest.tsx',
   ],
   coveragePathIgnorePatterns: [
-    'src/setupTest.js',
+    'src/setupTest.tsx',
     'src/i18n',
     'src/__mocks__',
   ],

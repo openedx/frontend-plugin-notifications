@@ -15,14 +15,17 @@ const notificationsApiUrl = getNotificationsListApiUrl();
 const markedAllNotificationsAsSeenApiUrl = markNotificationsSeenApiUrl('discussion');
 const markedAllNotificationsAsReadApiUrl = markNotificationAsReadApiUrl();
 
-let axiosMock = null;
+let axiosMock: MockAdapter;
 
 describe('Notifications API', () => {
   beforeEach(async () => {
     initializeMockApp({
       authenticatedUser: {
-        userId: '123abc',
+        userId: 123,
         username: 'testuser',
+        email: 'testuser@example.com',
+        name: 'Test User',
+        avatar: '',
         administrator: false,
         roles: [],
       },
@@ -38,13 +41,13 @@ describe('Notifications API', () => {
   it('Successfully get notification counts for different tabs.', async () => {
     axiosMock.onGet(notificationCountsApiUrl).reply(200, (Factory.build('notificationsCount')));
 
-    const { count, countByAppName } = await getNotificationCounts();
+    const data = await getNotificationCounts() as Record<string, any>;
 
-    expect(count).toEqual(45);
-    expect(countByAppName.reminders).toEqual(10);
-    expect(countByAppName.discussion).toEqual(20);
-    expect(countByAppName.grades).toEqual(10);
-    expect(countByAppName.authoring).toEqual(5);
+    expect(data.count).toEqual(45);
+    expect(data.countByAppName.reminders).toEqual(10);
+    expect(data.countByAppName.discussion).toEqual(20);
+    expect(data.countByAppName.grades).toEqual(10);
+    expect(data.countByAppName.authoring).toEqual(5);
   });
 
   it.each([
@@ -54,7 +57,7 @@ describe('Notifications API', () => {
     axiosMock.onGet(notificationCountsApiUrl).reply(statusCode, { message });
     try {
       await getNotificationCounts();
-    } catch (error) {
+    } catch (error: any) {
       expect(error.response.status).toEqual(statusCode);
       expect(error.response.data.message).toEqual(message);
     }
@@ -75,7 +78,7 @@ describe('Notifications API', () => {
     axiosMock.onGet(notificationsApiUrl).reply(statusCode, { message });
     try {
       await getNotificationsList('discussion', 1);
-    } catch (error) {
+    } catch (error: any) {
       expect(error.response.status).toEqual(statusCode);
       expect(error.response.data.message).toEqual(message);
     }
@@ -96,7 +99,7 @@ describe('Notifications API', () => {
     axiosMock.onPut(markedAllNotificationsAsSeenApiUrl).reply(statusCode, { message });
     try {
       await markNotificationSeen('discussion');
-    } catch (error) {
+    } catch (error: any) {
       expect(error.response.status).toEqual(statusCode);
       expect(error.response.data.message).toEqual(message);
     }
@@ -117,7 +120,7 @@ describe('Notifications API', () => {
     axiosMock.onPatch(markedAllNotificationsAsReadApiUrl).reply(statusCode, { message });
     try {
       await markAllNotificationRead('discussion');
-    } catch (error) {
+    } catch (error: any) {
       expect(error.response.status).toEqual(statusCode);
       expect(error.response.data.message).toEqual(message);
     }
@@ -137,8 +140,8 @@ describe('Notifications API', () => {
   ])('%s for notification mark as read API.', async ({ statusCode, message }) => {
     axiosMock.onPatch(markedAllNotificationsAsReadApiUrl).reply(statusCode, { message });
     try {
-      await markAllNotificationRead(1);
-    } catch (error) {
+      await markAllNotificationRead('1');
+    } catch (error: any) {
       expect(error.response.status).toEqual(statusCode);
       expect(error.response.data.message).toEqual(message);
     }

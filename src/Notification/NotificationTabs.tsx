@@ -12,7 +12,7 @@ const NotificationTabs = () => {
   const {
     appName, handleActiveTab, tabsCount, appsId, updateNotificationData,
   } = useContext(notificationsContext);
-  const fetchNotificationsRef = useRef(null);
+  const fetchNotificationsRef = useRef<(() => Promise<void>) | null>(null);
   const { fetchNotificationList, markNotificationsAsSeen } = useNotification();
 
   const fetchNotificationsList = useCallback(async () => {
@@ -30,7 +30,7 @@ const NotificationTabs = () => {
 
   useEffect(() => {
     const fetchNotifications = async () => {
-      await fetchNotificationsRef.current();
+      await fetchNotificationsRef.current?.();
     };
     fetchNotifications();
   }, [appName]);
@@ -38,26 +38,26 @@ const NotificationTabs = () => {
   return (
     appsId.length > 1
       ? (
-        <Tabs
-          variant="tabs"
-          defaultActiveKey={appName}
-          onSelect={handleActiveTab}
-          className="px-2.5 text-primary-500 tabs position-sticky zIndex-2 bg-white"
-        >
-          {appsId.map((app) => (
-            <Tab
-              key={app}
-              eventKey={app}
-              title={app}
-              notification={tabsCount[app]}
-              tabClassName="pt-0 py-2 px-2.5 d-flex border-top-0 mb-0 align-items-center line-height-24 text-capitalize"
-              data-testid={`notification-tab-${app}`}
-            >
-              {appName === app && <NotificationSections />}
-            </Tab>
-          ))}
-        </Tabs>
-      )
+          <Tabs
+            variant="tabs"
+            defaultActiveKey={appName}
+            onSelect={handleActiveTab}
+            className="px-2.5 text-primary-500 tabs position-sticky zIndex-2 bg-white"
+          >
+            {appsId.map((app) => (
+              <Tab
+                key={app}
+                eventKey={app}
+                title={app}
+                notification={tabsCount[app]}
+                tabClassName="pt-0 py-2 px-2.5 d-flex border-top-0 mb-0 align-items-center line-height-24 text-capitalize"
+                data-testid={`notification-tab-${app}`}
+              >
+                {appName === app && <NotificationSections />}
+              </Tab>
+            ))}
+          </Tabs>
+        )
       : <NotificationSections />
   );
 };

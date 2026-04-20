@@ -8,8 +8,9 @@ import { MemoryRouter } from 'react-router-dom';
 import { Factory } from 'rosie';
 
 import {
-  AppContext,
   IntlProvider,
+  SiteContext,
+  getSiteConfig,
   initializeMockApp,
 } from '@openedx/frontend-base';
 
@@ -20,16 +21,13 @@ import './data/__factories__';
 import { useAppNotifications } from './data/hook';
 
 const authenticatedUser = {
-  userId: 'abc123',
-  username: 'edX',
-  name: 'edX',
-  email: 'test@example.com',
+  userId: 3,
+  username: 'abc123',
+  email: 'abc@example.com',
+  name: 'Abc User',
+  avatar: '',
+  administrator: true,
   roles: [],
-  administrator: false,
-};
-const contextValue = {
-  authenticatedUser,
-  config: {},
 };
 
 const NotificationComponent = () => {
@@ -37,31 +35,24 @@ const NotificationComponent = () => {
   if (notificationAppData?.showNotificationsTray) {
     return <Notifications notificationAppData={notificationAppData} />;
   }
-  return '';
+  return null;
 };
 
 async function renderComponent() {
   render(
     <MemoryRouter>
-      <AppContext.Provider value={contextValue}>
+      <SiteContext.Provider value={{ authenticatedUser, siteConfig: getSiteConfig(), locale: 'en' }}>
         <IntlProvider locale="en" messages={{}}>
           <NotificationComponent />
         </IntlProvider>
-      </AppContext.Provider>
+      </SiteContext.Provider>
     </MemoryRouter>,
   );
 }
 
 describe('Notification row item test cases.', () => {
   beforeEach(async () => {
-    initializeMockApp({
-      authenticatedUser: {
-        userId: 3,
-        username: 'abc123',
-        administrator: true,
-        roles: [],
-      },
-    });
+    initializeMockApp({ authenticatedUser });
 
     Factory.resetAll();
 
@@ -75,7 +66,9 @@ describe('Notification row item test cases.', () => {
 
       await waitFor(async () => {
         const bellIcon = await screen.findByTestId('notification-bell-icon');
-        await act(async () => { fireEvent.click(bellIcon); });
+        await act(async () => {
+          fireEvent.click(bellIcon);
+        });
 
         expect(screen.queryByTestId('notification-icon-1')).toBeInTheDocument();
         expect(screen.queryByTestId('notification-content-1')).toBeInTheDocument();
@@ -91,10 +84,16 @@ describe('Notification row item test cases.', () => {
 
     await waitFor(async () => {
       const bellIcon = await screen.findByTestId('notification-bell-icon');
-      await act(async () => { fireEvent.click(bellIcon); });
+      await act(async () => {
+        fireEvent.click(bellIcon);
+      });
 
       const notification = screen.queryByTestId('notification-1');
-      await act(async () => { fireEvent.click(notification); });
+      if (notification) {
+        await act(async () => {
+          fireEvent.click(notification);
+        });
+      }
 
       expect(screen.queryByTestId('unread-notification-1')).not.toBeInTheDocument();
     });

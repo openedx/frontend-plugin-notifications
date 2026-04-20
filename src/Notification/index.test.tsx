@@ -9,9 +9,10 @@ import MockAdapter from 'axios-mock-adapter';
 import { Factory } from 'rosie';
 
 import {
-  AppContext,
   IntlProvider,
+  SiteContext,
   getAuthenticatedHttpClient,
+  getSiteConfig,
   initializeMockApp,
 } from '@openedx/frontend-base';
 
@@ -23,18 +24,16 @@ import { useAppNotifications } from './data/hook';
 
 const notificationCountsApiUrl = notificationApi.getNotificationsCountApiUrl();
 
-let axiosMock;
+let axiosMock: MockAdapter;
+
 const authenticatedUser = {
-  userId: 'abc123',
-  username: 'edX',
-  name: 'edX',
-  email: 'test@example.com',
-  roles: [],
+  userId: 3,
+  username: 'abc123',
+  email: 'abc@example.com',
+  name: 'Abc User',
+  avatar: '',
   administrator: false,
-};
-const contextValue = {
-  authenticatedUser,
-  config: {},
+  roles: [],
 };
 
 const NotificationComponent = () => {
@@ -42,31 +41,24 @@ const NotificationComponent = () => {
   if (notificationAppData?.showNotificationsTray) {
     return <Notifications notificationAppData={notificationAppData} />;
   }
-  return '';
+  return null;
 };
 
 async function renderComponent(url = '/') {
   render(
     <MemoryRouter initialEntries={[url]}>
-      <AppContext.Provider value={contextValue}>
+      <SiteContext.Provider value={{ authenticatedUser, siteConfig: getSiteConfig(), locale: 'en' }}>
         <IntlProvider locale="en" messages={{}}>
           <NotificationComponent />
         </IntlProvider>
-      </AppContext.Provider>
+      </SiteContext.Provider>
     </MemoryRouter>,
   );
 }
 
 describe('Notification test cases.', () => {
   beforeEach(async () => {
-    initializeMockApp({
-      authenticatedUser: {
-        userId: 3,
-        username: 'abc123',
-        administrator: false,
-        roles: [],
-      },
-    });
+    initializeMockApp({ authenticatedUser });
 
     axiosMock = new MockAdapter(getAuthenticatedHttpClient());
     Factory.resetAll();
@@ -158,11 +150,15 @@ describe('Notification test cases.', () => {
     await waitFor(async () => {
       const bellIcon = await screen.findByTestId('notification-bell-icon');
 
-      await act(async () => { fireEvent.click(bellIcon); });
+      await act(async () => {
+        fireEvent.click(bellIcon);
+      });
       expect(screen.queryByTestId('notification-tray')).toBeInTheDocument();
       expect(screen.queryByTestId('setting-icon')).toBeInTheDocument();
 
-      await act(async () => { fireEvent.click(bellIcon); });
+      await act(async () => {
+        fireEvent.click(bellIcon);
+      });
       await waitFor(() => expect(screen.queryByTestId('notification-tray')).not.toBeInTheDocument());
     });
   });
@@ -170,7 +166,8 @@ describe('Notification test cases.', () => {
   it.each(['/', '/notification', '/my-post'])(
     'Successfully call getNotificationCounts on URL %s change',
     async (url) => {
-      const getNotificationCountsSpy = jest.spyOn(notificationApi, 'getNotificationCounts').mockReturnValue(() => true);
+      const getNotificationCountsSpy = jest.spyOn(notificationApi, 'getNotificationCounts')
+        .mockResolvedValue({} as any);
       await renderComponent(url);
       await waitFor(() => {
         expect(getNotificationCountsSpy).toHaveBeenCalledTimes(1);

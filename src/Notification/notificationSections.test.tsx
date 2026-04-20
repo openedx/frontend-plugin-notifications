@@ -8,9 +8,10 @@ import MockAdapter from 'axios-mock-adapter';
 import { Factory } from 'rosie';
 
 import {
-  AppContext,
   IntlProvider,
+  SiteContext,
   getAuthenticatedHttpClient,
+  getSiteConfig,
   initializeMockApp,
 } from '@openedx/frontend-base';
 
@@ -25,18 +26,16 @@ const notificationCountsApiUrl = getNotificationsCountApiUrl();
 const notificationsApiUrl = getNotificationsListApiUrl();
 const notificationsTourApiUrl = getDiscussionTourUrl();
 
-let axiosMock;
+let axiosMock: MockAdapter;
+
 const authenticatedUser = {
-  userId: 'abc123',
-  username: 'edX',
-  name: 'edX',
-  email: 'test@example.com',
+  userId: 3,
+  username: 'abc123',
+  email: 'abc@example.com',
+  name: 'Abc User',
+  avatar: '',
+  administrator: true,
   roles: [],
-  administrator: false,
-};
-const contextValue = {
-  authenticatedUser,
-  config: {},
 };
 
 const NotificationComponent = () => {
@@ -44,31 +43,24 @@ const NotificationComponent = () => {
   if (notificationAppData?.showNotificationsTray) {
     return <Notifications notificationAppData={notificationAppData} />;
   }
-  return '';
+  return null;
 };
 
 async function renderComponent() {
   render(
     <MemoryRouter>
-      <AppContext.Provider value={contextValue}>
+      <SiteContext.Provider value={{ authenticatedUser, siteConfig: getSiteConfig(), locale: 'en' }}>
         <IntlProvider locale="en" messages={{}}>
           <NotificationComponent />
         </IntlProvider>
-      </AppContext.Provider>
+      </SiteContext.Provider>
     </MemoryRouter>,
   );
 }
 
 describe('Notification sections test cases.', () => {
   beforeEach(async () => {
-    initializeMockApp({
-      authenticatedUser: {
-        userId: 3,
-        username: 'abc123',
-        administrator: true,
-        roles: [],
-      },
-    });
+    initializeMockApp({ authenticatedUser });
 
     axiosMock = new MockAdapter(getAuthenticatedHttpClient());
     Factory.resetAll();
@@ -83,10 +75,12 @@ describe('Notification sections test cases.', () => {
 
     await waitFor(() => {
       const notificationTraySection = screen.queryByTestId('notification-tray-section');
+      expect(notificationTraySection).not.toBeNull();
+      const section = notificationTraySection as HTMLElement;
 
-      expect(within(notificationTraySection).queryByText('Last 24 hours')).toBeInTheDocument();
-      expect(within(notificationTraySection).queryByText('Earlier')).toBeInTheDocument();
-      expect(within(notificationTraySection).queryByText('Mark all as read')).toBeInTheDocument();
+      expect(within(section).queryByText('Last 24 hours')).toBeInTheDocument();
+      expect(within(section).queryByText('Earlier')).toBeInTheDocument();
+      expect(within(section).queryByText('Mark all as read')).toBeInTheDocument();
     });
   });
 

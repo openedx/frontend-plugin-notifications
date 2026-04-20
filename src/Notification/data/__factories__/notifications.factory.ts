@@ -21,7 +21,7 @@ Factory.define('notification')
   .sequence('content_url', (idx) => `https://example.com/${idx}`)
   .attr('last_read', null)
   .attr('last_seen', null)
-  .sequence('created', ['createdDate'], (idx, date) => date);
+  .sequence('created', ['createdDate'], (_idx: number, date: string) => date);
 
 Factory.define('notificationsList')
   .attr('next', null)

@@ -7,8 +7,9 @@ import { MemoryRouter } from 'react-router-dom';
 import { Factory } from 'rosie';
 
 import {
-  AppContext,
   IntlProvider,
+  SiteContext,
+  getSiteConfig,
   initializeMockApp,
 } from '@openedx/frontend-base';
 
@@ -19,16 +20,13 @@ import mockNotificationsResponse from './test-utils';
 import './data/__factories__';
 
 const authenticatedUser = {
-  userId: 'abc123',
-  username: 'edX',
-  name: 'edX',
-  email: 'test@example.com',
-  roles: [],
+  userId: 123,
+  username: 'testuser',
+  email: 'testuser@example.com',
+  name: 'Test User',
+  avatar: '',
   administrator: false,
-};
-const contextValue = {
-  authenticatedUser,
-  config: {},
+  roles: [],
 };
 
 const NotificationComponent = () => {
@@ -36,31 +34,24 @@ const NotificationComponent = () => {
   if (notificationAppData?.showNotificationsTray) {
     return <Notifications notificationAppData={notificationAppData} />;
   }
-  return '';
+  return null;
 };
 
 async function renderComponent() {
   render(
     <MemoryRouter>
-      <AppContext.Provider value={contextValue}>
+      <SiteContext.Provider value={{ authenticatedUser, siteConfig: getSiteConfig(), locale: 'en' }}>
         <IntlProvider locale="en" messages={{}}>
           <NotificationComponent />
         </IntlProvider>
-      </AppContext.Provider>
+      </SiteContext.Provider>
     </MemoryRouter>,
   );
 }
 
 describe('Notification Tabs test cases.', () => {
   beforeEach(async () => {
-    initializeMockApp({
-      authenticatedUser: {
-        userId: '123abc',
-        username: 'testuser',
-        administrator: false,
-        roles: [],
-      },
-    });
+    initializeMockApp({ authenticatedUser });
 
     Factory.resetAll();
 
@@ -78,7 +69,8 @@ describe('Notification Tabs test cases.', () => {
       const selectedTab = tabs.find(tab => tab.getAttribute('aria-selected') === 'true');
 
       expect(tabs.length).toEqual(5);
-      expect(within(selectedTab).queryByText('discussion')).toBeInTheDocument();
+      expect(selectedTab).toBeDefined();
+      expect(within(selectedTab as HTMLElement).queryByText('discussion')).toBeInTheDocument();
     });
   });
 

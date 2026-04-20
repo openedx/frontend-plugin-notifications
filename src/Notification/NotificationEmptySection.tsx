@@ -15,7 +15,7 @@ const EmptyNotifications = () => {
     <div
       className="d-flex flex-column justify-content-center align-items-center"
       data-testid="notifications-empty-list"
-      style={{ height: `${notificationRef.current.clientHeight - popoverHeaderRef.current.clientHeight}px` }}
+      style={{ height: `${(notificationRef?.current?.clientHeight ?? 0) - (popoverHeaderRef?.current?.clientHeight ?? 0)}px` }}
     >
       <IconButton
         isActive

@@ -1,5 +1,5 @@
-export default function timeLocale(number, index) {
-  return [
+export default function timeLocale(number: number, index: number): [string, string] {
+  const table: [string, string][] = [
     ['just now', 'right now'],
     ['%ss', 'in %s seconds'],
     ['1m', 'in 1 minute'],
@@ -14,5 +14,6 @@ export default function timeLocale(number, index) {
     [`${number * 4}w`, 'in %s months'],
     ['1y', 'in 1 year'],
     ['%sy', 'in %s years'],
-  ][index];
+  ];
+  return table[index];
 }

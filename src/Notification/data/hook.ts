@@ -3,33 +3,64 @@ import {
 } from 'react';
 import { useLocation } from 'react-router-dom';
 
-import { AppContext, camelCaseObject } from '@openedx/frontend-base';
+import { camelCaseObject, useAuthenticatedUser } from '@openedx/frontend-base';
 
 import { breakpoints, useWindowSize } from '@openedx/paragon';
 import { RequestStatus } from './constants';
-import { notificationsContext } from '../context/notificationsContext';
+import {
+  notificationsContext,
+  NotificationContextValue,
+  NotificationItem,
+  TabsCount,
+  Pagination,
+} from '../context/notificationsContext';
 import {
   getNotificationsList, getNotificationCounts, markNotificationSeen, markAllNotificationRead, markNotificationRead,
 } from './api';
 
-export function useIsOnMediumScreen() {
-  const windowSize = useWindowSize();
-  return breakpoints.large.maxWidth > windowSize.width && windowSize.width >= breakpoints.medium.minWidth;
+export interface NotificationAppData {
+  tabsCount: TabsCount,
+  appsId: string[],
+  apps: Record<string, string[]>,
+  showNotificationsTray: boolean,
+  notificationStatus: string,
+  notificationExpiryDays: number,
+  isNewNotificationViewEnabled: boolean,
 }
 
-export function useIsOnLargeScreen() {
+export function useIsOnMediumScreen(): boolean {
   const windowSize = useWindowSize();
-  return windowSize.width >= breakpoints.extraLarge.minWidth;
+  const width = windowSize.width ?? 0;
+  const largeMax = breakpoints.large?.maxWidth ?? Infinity;
+  const mediumMin = breakpoints.medium?.minWidth ?? 0;
+  return largeMax > width && width >= mediumMin;
+}
+
+export function useIsOnLargeScreen(): boolean {
+  const windowSize = useWindowSize();
+  const width = windowSize.width ?? 0;
+  const xlMin = breakpoints.extraLarge?.minWidth ?? Infinity;
+  return width >= xlMin;
 }
 
 export function useNotification() {
+  const ctx = useContext(notificationsContext);
   const {
     appName, apps, tabsCount, notifications, updateNotificationData,
-  } = useContext(notificationsContext);
+  } = ctx;
 
-  const normalizeNotificationCounts = useCallback(({ countByAppName, ...countData }) => {
+  interface CamelCaseCountsResponse {
+    count: number,
+    countByAppName: Record<string, number>,
+    showNotificationsTray: boolean,
+    notificationExpiryDays: number,
+    isNewNotificationViewEnabled: boolean,
+  }
+
+  const normalizeNotificationCounts = useCallback((input: CamelCaseCountsResponse) => {
+    const { countByAppName, ...countData } = input;
     const appIds = Object.keys(countByAppName);
-    const notificationApps = appIds.reduce((acc, appId) => {
+    const notificationApps = appIds.reduce<Record<string, string[]>>((acc, appId) => {
       acc[appId] = [];
       return acc;
     }, {});
@@ -42,13 +73,18 @@ export function useNotification() {
     };
   }, []);
 
-  const normalizeNotifications = (data) => {
+  const normalizeNotifications = (data: {
+    results: NotificationItem[],
+    numPages: number,
+    currentPage: number,
+    next: string | null,
+  }) => {
     const newNotificationIds = data.results.map(notification => notification.id.toString());
-    const notificationsKeyValuePair = data.results.reduce((acc, obj) => {
+    const notificationsKeyValuePair = data.results.reduce<Record<string, NotificationItem>>((acc, obj) => {
       acc[obj.id] = obj;
       return acc;
     }, {});
-    const pagination = {
+    const pagination: Pagination = {
       numPages: data.numPages,
       currentPage: data.currentPage,
       hasMorePages: !!data.next,
@@ -59,17 +95,17 @@ export function useNotification() {
     };
   };
 
-  const getNotifications = useCallback(() => {
+  const getNotifications = useCallback((): NotificationItem[] => {
     try {
       const notificationIds = apps[appName] || [];
 
       return notificationIds.map((notificationId) => notifications[notificationId]) || [];
     } catch (error) {
-      return { notificationStatus: RequestStatus.FAILED };
+      return [];
     }
   }, [apps, appName, notifications]);
 
-  const fetchAppsNotificationCount = useCallback(async () => {
+  const fetchAppsNotificationCount = useCallback(async (): Promise<NotificationAppData> => {
     try {
       const data = await getNotificationCounts();
       const normalisedData = normalizeNotificationCounts(camelCaseObject(data));
@@ -101,11 +137,16 @@ export function useNotification() {
     }
   }, [normalizeNotificationCounts]);
 
-  const fetchNotificationList = useCallback(async (app, page = 1, pageSize = 10, trayOpened = true) => {
+  const fetchNotificationList = useCallback(async (
+    app: string,
+    page = 1,
+    pageSize = 10,
+    trayOpened = true,
+  ): Promise<Partial<NotificationContextValue>> => {
     try {
       updateNotificationData({ notificationListStatus: RequestStatus.IN_PROGRESS });
       const data = await getNotificationsList(app, page, pageSize, trayOpened);
-      const normalizedData = normalizeNotifications((camelCaseObject(data)));
+      const normalizedData = normalizeNotifications(camelCaseObject(data));
 
       const {
         newNotificationIds, notificationsKeyValuePair, pagination,
@@ -122,7 +163,7 @@ export function useNotification() {
         notifications: { ...notifications, ...notificationsKeyValuePair },
         tabsCount: {
           ...tabsCount,
-          count: count - tabsCount[appName],
+          count: count - (tabsCount[appName] || 0),
           [appName]: 0,
         },
         notificationListStatus: RequestStatus.SUCCESSFUL,
@@ -133,7 +174,7 @@ export function useNotification() {
     }
   }, [appName, apps, tabsCount, notifications, updateNotificationData]);
 
-  const markNotificationsAsSeen = useCallback(async (app) => {
+  const markNotificationsAsSeen = useCallback(async (app: string) => {
     try {
       await markNotificationSeen(app);
 
@@ -143,14 +184,14 @@ export function useNotification() {
     }
   }, []);
 
-  const markAllNotificationsAsRead = useCallback(async (app) => {
+  const markAllNotificationsAsRead = useCallback(async (app: string) => {
     try {
       await markAllNotificationRead(app);
       const updatedNotifications = Object.fromEntries(
         Object.entries(notifications).map(([key, notification]) => [
           key, { ...notification, lastRead: new Date().toISOString() },
         ]),
-      );
+      ) as Record<string, NotificationItem>;
 
       return {
         notifications: updatedNotifications,
@@ -161,13 +202,15 @@ export function useNotification() {
     }
   }, [notifications]);
 
-  const markNotificationsAsRead = useCallback(async (notificationId) => {
+  const markNotificationsAsRead = useCallback(async (notificationId: number) => {
     try {
-      const data = camelCaseObject(await markNotificationRead(notificationId));
+      const result: { id: number, data: unknown } = camelCaseObject(
+        await markNotificationRead(notificationId),
+      );
 
       const date = new Date().toISOString();
-      const notificationList = { ...notifications };
-      notificationList[data.id] = { ...notifications[data.id], lastRead: date };
+      const notificationList: Record<string, NotificationItem> = { ...notifications };
+      notificationList[result.id] = { ...notifications[result.id], lastRead: date };
 
       return {
         notifications: notificationList,
@@ -189,9 +232,9 @@ export function useNotification() {
 }
 
 export function useAppNotifications() {
-  const { authenticatedUser } = useContext(AppContext);
+  const authenticatedUser = useAuthenticatedUser();
   const [isNewNotificationView, setIsNewNotificationView] = useState(false);
-  const [notificationAppData, setNotificationAppData] = useState();
+  const [notificationAppData, setNotificationAppData] = useState<NotificationAppData | undefined>(undefined);
   const { fetchAppsNotificationCount } = useNotification();
   const location = useLocation();
 

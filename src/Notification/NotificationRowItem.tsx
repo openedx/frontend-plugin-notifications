@@ -1,5 +1,4 @@
 import React, { useCallback, useContext } from 'react';
-import PropTypes from 'prop-types';
 
 import * as timeago from 'timeago.js';
 import DOMPurify from 'dompurify';
@@ -13,7 +12,17 @@ import { getIconByType } from './utils';
 import { useNotification } from './data/hook';
 import { notificationsContext } from './context/notificationsContext';
 
-const NotificationRowItem = ({
+interface NotificationRowItemProps {
+  id: number,
+  type?: string,
+  contentUrl: string,
+  content: string,
+  courseName: string,
+  createdAt: string,
+  lastRead?: string | null,
+}
+
+const NotificationRowItem: React.FC<NotificationRowItemProps> = ({
   id, type = '', contentUrl, content, courseName, createdAt, lastRead = '',
 }) => {
   timeago.register('time-locale', timeLocale);
@@ -29,7 +38,7 @@ const NotificationRowItem = ({
     }
   }, [id, lastRead, markNotificationsAsRead, updateNotificationData]);
 
-  const handleNotificationClick = async (event) => {
+  const handleNotificationClick = async (event: React.MouseEvent) => {
     event.preventDefault();
 
     await handleMarkAsRead();
@@ -44,7 +53,7 @@ const NotificationRowItem = ({
       target="_blank"
       className="d-flex mb-2 align-items-center text-decoration-none notification-post-link"
       destination={contentUrl}
-      onClick={(event) => handleNotificationClick(event, contentUrl)}
+      onClick={handleNotificationClick}
       data-testid={`notification-${id}`}
       showLaunchIcon={false}
     >
@@ -58,7 +67,7 @@ const NotificationRowItem = ({
           <div className="py-2 w-100 px-0 cursor-pointer">
             <span
               className="line-height-24 text-gray-700 mb-2 notification-item-content overflow-hidden content"
-              // eslint-disable-next-line react/no-danger
+
               dangerouslySetInnerHTML={{ __html: sanitizedContent }}
               data-testid={`notification-content-${id}`}
             />
@@ -81,16 +90,6 @@ const NotificationRowItem = ({
       </div>
     </Hyperlink>
   );
-};
-
-NotificationRowItem.propTypes = {
-  id: PropTypes.number.isRequired,
-  type: PropTypes.string,
-  contentUrl: PropTypes.string.isRequired,
-  content: PropTypes.node.isRequired,
-  courseName: PropTypes.string.isRequired,
-  createdAt: PropTypes.string.isRequired,
-  lastRead: PropTypes.string,
 };
 
 export default React.memo(NotificationRowItem);

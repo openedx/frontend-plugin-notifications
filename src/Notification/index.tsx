@@ -3,10 +3,9 @@ import React, {
 } from 'react';
 
 import classNames from 'classnames';
-import PropTypes from 'prop-types';
 import { useSearchParams } from 'react-router-dom';
 
-import { getSiteConfig, useIntl } from '@openedx/frontend-base';
+import { useAppConfig, useIntl } from '@openedx/frontend-base';
 import {
   Bubble, Hyperlink, Icon, IconButton, OverlayTrigger, Popover,
 } from '@openedx/paragon';
@@ -14,25 +13,50 @@ import { NotificationsNone, Settings } from '@openedx/paragon/icons';
 import { RequestStatus } from './data/constants';
 
 import { useIsOnLargeScreen, useIsOnMediumScreen } from './data/hook';
+import { NotificationAppData } from './data/hook';
 import NotificationTour from './tours/NotificationTour';
 import NotificationPopoverContext from './context/notificationPopoverContext';
 import messages from './messages';
 import NotificationTabs from './NotificationTabs';
-import { notificationsContext } from './context/notificationsContext';
+import {
+  notificationsContext,
+  NotificationContextValue,
+  initialState,
+  TabsCount,
+} from './context/notificationsContext';
 
 import './notification.scss';
 
-const Notifications = ({ notificationAppData, margins }) => {
+interface NotificationsProps {
+  notificationAppData?: NotificationAppData,
+  margins?: string,
+}
+
+const defaultNotificationAppData: NotificationAppData = {
+  apps: {},
+  tabsCount: { count: 0 },
+  appsId: [],
+  isNewNotificationViewEnabled: false,
+  notificationExpiryDays: 0,
+  notificationStatus: '',
+  showNotificationsTray: false,
+};
+
+const Notifications: React.FC<NotificationsProps> = ({
+  notificationAppData = defaultNotificationAppData,
+  margins = 'mx-1.5',
+}) => {
   const intl = useIntl();
-  const popoverRef = useRef(null);
-  const headerRef = useRef(null);
+  const appConfig = useAppConfig() as { ACCOUNT_SETTINGS_URL?: string };
+  const popoverRef = useRef<HTMLDivElement>(null);
+  const headerRef = useRef<HTMLDivElement>(null);
   const [searchParams] = useSearchParams();
-  const buttonRef = useRef(null);
+  const buttonRef = useRef<HTMLDivElement>(null);
   const [enableNotificationTray, setEnableNotificationTray] = useState(false);
   const [appName, setAppName] = useState('discussion');
   const [isHeaderVisible, setIsHeaderVisible] = useState(true);
-  const [notificationData, setNotificationData] = useState({});
-  const [tabsCount, setTabsCount] = useState(notificationAppData?.tabsCount);
+  const [notificationData, setNotificationData] = useState<Partial<NotificationContextValue>>({});
+  const [tabsCount, setTabsCount] = useState<TabsCount>(notificationAppData?.tabsCount ?? { count: 0 });
   const [openFlag, setOpenFlag] = useState(false);
   const isOnMediumScreen = useIsOnMediumScreen();
   const isOnLargeScreen = useIsOnLargeScreen();
@@ -41,8 +65,9 @@ const Notifications = ({ notificationAppData, margins }) => {
     setEnableNotificationTray(prevState => !prevState);
   }, []);
 
-  const handleClickOutsideNotificationTray = useCallback((event) => {
-    if (!popoverRef.current?.contains(event.target) && !buttonRef.current?.contains(event.target)) {
+  const handleClickOutsideNotificationTray = useCallback((event: MouseEvent) => {
+    const target = event.target as Node;
+    if (!popoverRef.current?.contains(target) && !buttonRef.current?.contains(target)) {
       setEnableNotificationTray(false);
     }
   }, []);
@@ -85,31 +110,40 @@ const Notifications = ({ notificationAppData, margins }) => {
     [headerRef, popoverRef],
   );
 
-  const handleActiveTab = useCallback((selectedAppName) => {
+  const handleActiveTab = useCallback((selectedAppName: string) => {
     setAppName(selectedAppName);
     setNotificationData(prevData => ({
       ...prevData,
-      ...{ notificationListStatus: appName === selectedAppName ? RequestStatus.SUCCESSFUL : RequestStatus.IN_PROGRESS },
+      notificationListStatus: appName === selectedAppName ? RequestStatus.SUCCESSFUL : RequestStatus.IN_PROGRESS,
     }));
   }, [appName]);
 
-  const updateNotificationData = useCallback((data) => {
+  const updateNotificationData = useCallback((data: Partial<NotificationContextValue>) => {
     setNotificationData(prevData => ({
       ...prevData,
       ...data,
     }));
     if (data.tabsCount) {
-      setTabsCount(data?.tabsCount);
+      setTabsCount(data.tabsCount);
     }
   }, []);
 
-  const notificationContextValue = useMemo(() => ({
+  const notificationContextValue = useMemo<NotificationContextValue>(() => ({
+    ...initialState,
+    ...notificationData,
     enableNotificationTray,
     handleActiveTab,
     updateNotificationData,
-    ...notificationData,
     appName,
-  }), [enableNotificationTray, appName, handleActiveTab, updateNotificationData, notificationData]);
+    tabsCount,
+  }), [enableNotificationTray, appName, handleActiveTab, updateNotificationData, notificationData, tabsCount]);
+
+  const accountSettingsUrl = appConfig.ACCOUNT_SETTINGS_URL ?? '';
+  const settingsDestination = `${
+    accountSettingsUrl && accountSettingsUrl.endsWith('/')
+      ? `${accountSettingsUrl}#notifications`
+      : `${accountSettingsUrl}/#notifications`
+  }`;
 
   return (
     <notificationsContext.Provider value={notificationContextValue}>
@@ -139,14 +173,7 @@ const Notifications = ({ notificationAppData, margins }) => {
                 >
                   {intl.formatMessage(messages.notificationTitle)}
                   <Hyperlink
-                    destination={`${
-                      // TODO (Phase 5/9): expose accountSettingsUrl via this app's
-                      // site.config / app.config.  Legacy code read ACCOUNT_SETTINGS_URL
-                      // from env-driven config; frontend-base has no built-in slot for it.
-                      getSiteConfig().accountSettingsUrl && getSiteConfig().accountSettingsUrl.endsWith('/')
-                        ? `${getSiteConfig().accountSettingsUrl}#notifications`
-                        : `${getSiteConfig().accountSettingsUrl}/#notifications`
-                    }`}
+                    destination={settingsDestination}
                     target="_blank"
                     showLaunchIcon={false}
                   >
@@ -182,54 +209,35 @@ const Notifications = ({ notificationAppData, margins }) => {
             data-testid="notification-bell-icon"
           />
           {tabsCount?.count > 0 && (
-            <Bubble
-              variant="error"
-              data-testid="notification-count"
-              className={classNames('notification-badge zindex-1 cursor-pointer p-1', {
-                'notification-badge-unrounded mt-1': tabsCount.count >= 10,
-                'notification-badge-rounded': tabsCount.count < 10,
-              })}
+            <div
+              role="button"
+              tabIndex={0}
               onClick={toggleNotificationTray}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  toggleNotificationTray();
+                }
+              }}
+              className="d-inline-block"
             >
-              {tabsCount.count >= 100 ? <div className="d-flex">99<p className="mb-0 plus-icon">+</p></div>
-                : tabsCount.count}
-            </Bubble>
+              <Bubble
+                variant="error"
+                data-testid="notification-count"
+                className={classNames('notification-badge zindex-1 cursor-pointer p-1', {
+                  'notification-badge-unrounded mt-1': tabsCount.count >= 10,
+                  'notification-badge-rounded': tabsCount.count < 10,
+                })}
+              >
+                {tabsCount.count >= 100 ? <div className="d-flex">99<p className="mb-0 plus-icon">+</p></div>
+                  : tabsCount.count}
+              </Bubble>
+            </div>
           )}
         </div>
       </OverlayTrigger>
       <NotificationTour />
     </notificationsContext.Provider>
   );
-};
-
-Notifications.propTypes = {
-  margins: PropTypes.string,
-  notificationAppData: PropTypes.shape({
-    apps: PropTypes.objectOf(
-      PropTypes.arrayOf(PropTypes.string),
-    ).isRequired,
-    appsId: PropTypes.arrayOf(PropTypes.string).isRequired,
-    isNewNotificationViewEnabled: PropTypes.bool.isRequired,
-    notificationExpiryDays: PropTypes.number,
-    notificationStatus: PropTypes.string.isRequired,
-    showNotificationsTray: PropTypes.bool.isRequired,
-    tabsCount: PropTypes.shape({
-      count: PropTypes.number.isRequired,
-    }).isRequired,
-  }),
-};
-
-Notifications.defaultProps = {
-  margins: 'mx-1.5',
-  notificationAppData: {
-    apps: {},
-    tabsCount: { count: 0 },
-    appsId: [],
-    isNewNotificationViewEnabled: false,
-    notificationExpiryDays: 0,
-    notificationStatus: '',
-    showNotificationsTray: false,
-  },
 };
 
 export default Notifications;

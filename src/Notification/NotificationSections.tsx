@@ -13,7 +13,7 @@ import messages from './messages';
 import NotificationEmptySection from './NotificationEmptySection';
 import NotificationRowItem from './NotificationRowItem';
 import { splitNotificationsByTime } from './utils';
-import { notificationsContext } from './context/notificationsContext';
+import { notificationsContext, NotificationItem } from './context/notificationsContext';
 import { useNotification } from './data/hook';
 
 const NotificationSections = () => {
@@ -37,12 +37,14 @@ const NotificationSections = () => {
   }, [appName, markAllNotificationsAsRead, updateNotificationData]);
 
   const loadMoreNotifications = useCallback(async () => {
-    const data = await fetchNotificationList(appName, currentPage + 1);
+    const data = await fetchNotificationList(appName, (currentPage ?? 0) + 1);
     updateNotificationData(data);
   }, [fetchNotificationList, appName, currentPage, updateNotificationData]);
 
-  const renderNotificationSection = (section, items) => {
-    if (isEmpty(items)) { return null; }
+  const renderNotificationSection = (section: 'today' | 'earlier', items: NotificationItem[]) => {
+    if (isEmpty(items)) {
+      return null;
+    }
 
     return (
       <div className="pb-2">
@@ -96,7 +98,7 @@ const NotificationSections = () => {
       {renderNotificationSection('earlier', earlier)}
       {notificationListStatus === RequestStatus.IN_PROGRESS ? (
         <div className="d-flex justify-content-center p-4">
-          <Spinner animation="border" variant="primary" size="lg" data-testid="notifications-loading-spinner" />
+          <Spinner animation="border" variant="primary" data-testid="notifications-loading-spinner" />
         </div>
       ) : (hasMorePages && notificationListStatus === RequestStatus.SUCCESSFUL && notificationList.length >= 10 && (
         <Button
