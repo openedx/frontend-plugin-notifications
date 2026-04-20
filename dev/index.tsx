@@ -14,7 +14,6 @@ installDevMocks();
 const originalWindowOpen = window.open.bind(window);
 window.open = (url, target, features) => {
   if (target === '_blank') {
-    // eslint-disable-next-line no-console
     console.info('[dev] window.open suppressed:', url);
     return null;
   }
