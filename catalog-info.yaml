@@ -5,12 +5,12 @@ apiVersion: backstage.io/v1alpha1
 kind: Component
 metadata:
   name: "frontend-plugin-notifications"
-  description: "Repository for Notification plugin."
+  description: "Repository for the Open edX notifications frontend app."
   links:
-    - url: "https://github.com/edx/frontend-plugin-notifications/blob/master/README.rst"
+    - url: "https://github.com/openedx/frontend-plugin-notifications/blob/main/README.rst"
       title: "README"
       icon: "Article"
 spec:
   owner: group:edx-infinity
-  type: "plugin"
+  type: "application"
   lifecycle: "experimental"
