@@ -15,20 +15,16 @@ mergeConfig({
 
 jest.mock('@src/generic/messages', () => jest.fn(() => { }), { virtual: true });
 
-/* eslint-disable no-console */
 const supressWarningBlock = (callback) => {
   const originalConsoleWarning = console.warn;
   console.warn = jest.fn();
   callback();
   console.warn = originalConsoleWarning;
 };
-/* eslint-enable no-console */
 
 class MockLoggingService {
-  // eslint-disable-next-line no-console
   logInfo = jest.fn(infoString => console.log(infoString));
 
-  // eslint-disable-next-line no-console
   logError = jest.fn(errorString => console.log(errorString));
 }
 
@@ -54,7 +50,7 @@ function render(
   } = {},
 ) {
   const Wrapper = ({ children }) => (
-    // eslint-disable-next-line react/jsx-filename-extension
+
     <IntlProvider locale="en">
       {children}
     </IntlProvider>

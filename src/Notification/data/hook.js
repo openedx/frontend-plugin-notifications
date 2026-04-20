@@ -30,7 +30,10 @@ export function useNotification() {
 
   const normalizeNotificationCounts = useCallback(({ countByAppName, ...countData }) => {
     const appIds = Object.keys(countByAppName);
-    const notificationApps = appIds.reduce((acc, appId) => { acc[appId] = []; return acc; }, {});
+    const notificationApps = appIds.reduce((acc, appId) => {
+      acc[appId] = [];
+      return acc;
+    }, {});
 
     return {
       ...countData,
@@ -42,7 +45,10 @@ export function useNotification() {
 
   const normalizeNotifications = (data) => {
     const newNotificationIds = data.results.map(notification => notification.id.toString());
-    const notificationsKeyValuePair = data.results.reduce((acc, obj) => { acc[obj.id] = obj; return acc; }, {});
+    const notificationsKeyValuePair = data.results.reduce((acc, obj) => {
+      acc[obj.id] = obj;
+      return acc;
+    }, {});
     const pagination = {
       numPages: data.numPages,
       currentPage: data.currentPage,

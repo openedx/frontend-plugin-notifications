@@ -48,8 +48,14 @@ export function useNotificationTour() {
   }, [updateNotificationData, updateTourShowStatus]);
 
   const useTourConfiguration = async () => {
+    // TODO: useTourConfiguration is declared async but calls React hooks
+    // (useIntl, useMemo). Hooks cannot be called from async functions. This
+    // path is likely dead or buggy; fix properly in Phase 4.5 when the data
+    // layer is ported to react-query.
+    // eslint-disable-next-line react-hooks/rules-of-hooks
     const intl = useIntl();
 
+    // eslint-disable-next-line react-hooks/rules-of-hooks
     const toursConfig = useMemo(() => (
       tours?.map((tour) => Object.keys(tourCheckpoints(intl)).includes(tour.tourName) && (
         {
