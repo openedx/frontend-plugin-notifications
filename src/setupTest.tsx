@@ -1,4 +1,5 @@
 import '@testing-library/jest-dom';
+import siteConfig from 'site.config';
 import React, { ReactNode } from 'react';
 import { render as rtlRender, RenderOptions } from '@testing-library/react';
 import {
@@ -9,7 +10,6 @@ import {
 } from '@openedx/frontend-base';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import ResizeObserver from 'resize-observer-polyfill';
-import siteConfig from 'site.config';
 
 (globalThis as { ResizeObserver: typeof ResizeObserver }).ResizeObserver = ResizeObserver;
 
