@@ -11,7 +11,6 @@ module.exports = createConfig('test', {
   ],
   moduleNameMapper: {
     '\\.svg$': '<rootDir>/src/__mocks__/svg.js',
-    '\\.png$': '<rootDir>/src/__mocks__/file.js',
     '^@src/(.*)$': '<rootDir>/src/$1',
   },
 });
