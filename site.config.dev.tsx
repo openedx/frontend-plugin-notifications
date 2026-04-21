@@ -9,7 +9,7 @@ import {
 import notificationsApp from './src/app';
 import devApp from './dev';
 
-import './src/app.scss';
+import '@openedx/frontend-base/shell/style';
 
 const siteConfig: SiteConfig = {
   siteId: 'notifications-dev',
