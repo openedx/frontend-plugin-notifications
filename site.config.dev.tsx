@@ -6,8 +6,8 @@ import {
   shellApp,
 } from '@openedx/frontend-base';
 
-import notificationsApp from './src/app';
-import devApp from './dev';
+import { notificationsApp } from './src';
+import { devApp } from './dev';
 
 import '@openedx/frontend-base/shell/style';
 

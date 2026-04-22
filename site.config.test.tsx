@@ -1,6 +1,6 @@
 import type { SiteConfig } from '@openedx/frontend-base';
 
-import notificationsApp from './src/app';
+import { notificationsApp } from './src';
 
 const siteConfig: SiteConfig = {
   siteId: 'notifications-test',

@@ -17,6 +17,9 @@ build:
 	  done' sh {} +
 	tsc-alias -p tsconfig.build.json
 
+build-ci:
+	SITE_CONFIG_PATH=site.config.ci.tsx openedx build
+
 # turbo.site.json is the standalone turbo config for this package.  It is
 # renamed to avoid conflicts with turbo v2's workspace validation, which
 # rejects root task syntax (//#) and requires "extends" in package-level

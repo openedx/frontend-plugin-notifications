@@ -20,7 +20,7 @@ window.open = (url, target, features) => {
   return originalWindowOpen(url, target, features);
 };
 
-const devApp: App = {
+export const devApp: App = {
   appId: 'notifications-dev-site',
   routes: [{
     path: '/',
@@ -39,5 +39,3 @@ const devApp: App = {
     element: <LinkMenuItem label="Home" url="/" variant="navLink" />,
   }],
 };
-
-export default devApp;
