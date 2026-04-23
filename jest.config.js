@@ -1,13 +1,16 @@
-const { createConfig } = require('@openedx/frontend-build');
+const { createConfig } = require('@openedx/frontend-base/tools');
 
-module.exports = createConfig('jest', {
-  // setupFilesAfterEnv is used after the jest environment has been loaded.  In general this is what you want.  
-  // If you want to add config BEFORE jest loads, use setupFiles instead.  
+module.exports = createConfig('test', {
   setupFilesAfterEnv: [
-    '<rootDir>/src/setupTest.js',
+    '<rootDir>/src/setupTest.tsx',
   ],
   coveragePathIgnorePatterns: [
-    'src/setupTest.js',
+    'src/setupTest.tsx',
     'src/i18n',
+    'src/__mocks__',
   ],
+  moduleNameMapper: {
+    '\\.svg$': '<rootDir>/src/__mocks__/svg.js',
+    '^@src/(.*)$': '<rootDir>/src/$1',
+  },
 });

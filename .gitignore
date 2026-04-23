@@ -1,17 +1,19 @@
-.DS_Store
-.eslintcache
-.idea
 node_modules
 npm-debug.log
 coverage
-module.config.js
-env.config.js*
-
 dist/
-src/i18n/transifex_input.json
-temp/babel-plugin-react-intl
+packages/
+/.turbo
+/turbo.json
+/*.tgz
 
+### i18n ###
+src/i18n/transifex_input.json
+src/i18n/messages.ts
+src/i18n/messages/
+
+### Editors ###
+.DS_Store
 *~
 /temp
 /.vscode
-/.idea

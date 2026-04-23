@@ -1,0 +1,182 @@
+import React from 'react';
+
+import {
+  act, fireEvent, render, screen, waitFor,
+} from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
+
+import MockAdapter from 'axios-mock-adapter';
+import { Factory } from 'rosie';
+
+import {
+  IntlProvider,
+  SiteContext,
+  getAuthenticatedHttpClient,
+  getSiteConfig,
+  initializeMockApp,
+} from '@openedx/frontend-base';
+import { QueryClientProvider } from '@tanstack/react-query';
+
+import Notifications from './index';
+import * as notificationApi from './data/api';
+import { createTestQueryClient } from '../setupTest';
+
+import './data/__factories__';
+import { useAppNotifications } from './data/hook';
+
+const notificationCountsApiUrl = notificationApi.getNotificationsCountApiUrl();
+
+let axiosMock: MockAdapter;
+
+const authenticatedUser = {
+  userId: 3,
+  username: 'abc123',
+  email: 'abc@example.com',
+  name: 'Abc User',
+  avatar: '',
+  administrator: false,
+  roles: [],
+};
+
+const NotificationComponent = () => {
+  const { notificationAppData } = useAppNotifications();
+  if (notificationAppData?.showNotificationsTray) {
+    return <Notifications notificationAppData={notificationAppData} />;
+  }
+  return null;
+};
+
+async function renderComponent(url = '/') {
+  const queryClient = createTestQueryClient();
+  render(
+    <QueryClientProvider client={queryClient}>
+      <MemoryRouter initialEntries={[url]}>
+        <SiteContext.Provider value={{ authenticatedUser, siteConfig: getSiteConfig(), locale: 'en' }}>
+          <IntlProvider locale="en" messages={{}}>
+            <NotificationComponent />
+          </IntlProvider>
+        </SiteContext.Provider>
+      </MemoryRouter>
+    </QueryClientProvider>,
+  );
+}
+
+describe('Notification test cases.', () => {
+  beforeEach(async () => {
+    initializeMockApp({ authenticatedUser });
+
+    axiosMock = new MockAdapter(getAuthenticatedHttpClient());
+    Factory.resetAll();
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  async function setupMockNotificationCountResponse(count = 45, showNotificationsTray = true) {
+    axiosMock.onGet(notificationCountsApiUrl)
+      .reply(200, (Factory.build('notificationsCount', { count, showNotificationsTray })));
+  }
+
+  it.each(['true', 'false', null])(
+    'Ensures correct rendering of the notification tray based on the showNotifications query parameter value %s',
+    async (showNotifications) => {
+      await setupMockNotificationCountResponse();
+
+      const url = showNotifications ? `/?showNotifications=${showNotifications}` : '/';
+      await renderComponent(url);
+      await waitFor(() => {
+        expect(screen.queryByTestId('notification-bell-icon')).toBeInTheDocument();
+        if (showNotifications === 'true') {
+          expect(screen.queryByTestId('notification-tray')).toBeInTheDocument();
+        } else {
+          expect(screen.queryByTestId('notification-tray')).not.toBeInTheDocument();
+        }
+      });
+    },
+  );
+
+  it.each(['discussion', 'grades'])(
+    'Notification tray opens tab if app param is %s',
+    async (app) => {
+      await setupMockNotificationCountResponse();
+      const url = `/?showNotifications=true&app=${app}`;
+      await renderComponent(url);
+      await waitFor(() => {
+        expect(screen.queryByTestId('notification-bell-icon')).toBeInTheDocument();
+        expect(screen.queryByTestId('notification-tray')).toBeInTheDocument();
+        expect(screen.queryByTestId(`notification-tab-${app}`)).toHaveClass('active');
+      });
+    },
+  );
+
+  it('Successfully showed bell icon and unseen count on it if unseen count is greater then 0.', async () => {
+    await setupMockNotificationCountResponse();
+    await renderComponent();
+
+    await waitFor(() => {
+      const bellIcon = screen.queryByTestId('notification-bell-icon');
+      const notificationCount = screen.queryByTestId('notification-count');
+
+      expect(bellIcon).toBeInTheDocument();
+      expect(notificationCount).toBeInTheDocument();
+      expect(screen.queryByText(45)).toBeInTheDocument();
+    });
+  });
+
+  it('Successfully showed bell icon and hide unseen count tag when unseen count is zero.', async () => {
+    await setupMockNotificationCountResponse(0);
+    await renderComponent();
+
+    await waitFor(() => {
+      const bellIcon = screen.queryByTestId('notification-bell-icon');
+      const notificationCount = screen.queryByTestId('notification-count');
+
+      expect(bellIcon).toBeInTheDocument();
+      expect(notificationCount).not.toBeInTheDocument();
+    });
+  });
+
+  it('Successfully hides bell icon when showNotificationsTray is false.', async () => {
+    await setupMockNotificationCountResponse(45, false);
+    await renderComponent();
+
+    await waitFor(() => {
+      const bellIcon = screen.queryByTestId('notification-bell-icon');
+
+      expect(bellIcon).not.toBeInTheDocument();
+    });
+  });
+
+  it('Successfully viewed setting icon and show/hide notification tray by clicking on the bell icon .', async () => {
+    await setupMockNotificationCountResponse();
+    await renderComponent();
+
+    await waitFor(async () => {
+      const bellIcon = await screen.findByTestId('notification-bell-icon');
+
+      await act(async () => {
+        fireEvent.click(bellIcon);
+      });
+      expect(screen.queryByTestId('notification-tray')).toBeInTheDocument();
+      expect(screen.queryByTestId('setting-icon')).toBeInTheDocument();
+
+      await act(async () => {
+        fireEvent.click(bellIcon);
+      });
+      await waitFor(() => expect(screen.queryByTestId('notification-tray')).not.toBeInTheDocument());
+    });
+  });
+
+  it.each(['/', '/notification', '/my-post'])(
+    'Successfully call getNotificationCounts on URL %s change',
+    async (url) => {
+      const getNotificationCountsSpy = jest.spyOn(notificationApi, 'getNotificationCounts')
+        .mockResolvedValue({} as any);
+      await renderComponent(url);
+      await waitFor(() => {
+        expect(getNotificationCountsSpy).toHaveBeenCalledTimes(1);
+      });
+    },
+  );
+});

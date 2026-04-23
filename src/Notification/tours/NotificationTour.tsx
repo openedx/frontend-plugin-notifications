@@ -1,0 +1,18 @@
+import React from 'react';
+import isEmpty from 'lodash/isEmpty';
+import { ProductTour } from '@openedx/paragon';
+import { useTourConfiguration } from './data/hooks';
+
+const NotificationTour = () => {
+  const config = useTourConfiguration();
+
+  return (
+    !isEmpty(config) && (
+      <ProductTour
+        tours={config}
+      />
+    )
+  );
+};
+
+export default NotificationTour;
