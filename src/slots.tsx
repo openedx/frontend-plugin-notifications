@@ -7,7 +7,7 @@ const slots: SlotOperation[] = [
     slotId: 'org.openedx.frontend.slot.header.desktopRight.v1',
     id: `${appId}.widget.notificationsBell.desktop.v1`,
     op: WidgetOperationTypes.INSERT_BEFORE,
-    relatedId: 'org.openedx.frontend.widget.header.desktopAuthenticatedMenu.v1',
+    relatedId: 'org.openedx.frontend.widget.header.desktopSecondaryLinks.v1',
     element: <NotificationsTray />,
     condition: { authenticated: true },
   },
